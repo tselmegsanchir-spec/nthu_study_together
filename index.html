@@ -206,13 +206,14 @@ body{font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC","PingFang TC"
    FIREBASE REALTIME DATABASE ХОЛБОЛТ
    ========================================= */
 const firebaseConfig = {
-  apiKey: "ТА_FIREBASE_КОДОО_ЭНД_ТАВИНА",
-  authDomain: "ТА_FIREBASE_КОДОО_ЭНД_ТАВИНА",
-  databaseURL: "ТА_FIREBASE_КОДОО_ЭНД_ТАВИНА",
-  projectId: "ТА_FIREBASE_КОДОО_ЭНД_ТАВИНА",
-  storageBucket: "ТА_FIREBASE_КОДОО_ЭНД_ТАВИНА",
-  messagingSenderId: "ТА_FIREBASE_КОДОО_ЭНД_ТАВИНА",
-  appId: "ТА_FIREBASE_КОДОО_ЭНД_ТАВИНА"
+  apiKey: "AIzaSyCMFpE1qG7svOwzLES7XLCzj9DNz9AAcuo",
+  authDomain: "nthu-studybuddy.firebaseapp.com",
+  databaseURL: "https://nthu-studybuddy-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "nthu-studybuddy",
+  storageBucket: "nthu-studybuddy.firebasestorage.app",
+  messagingSenderId: "500848090179",
+  appId: "1:500848090179:web:90ae4805d6b8448bf5c8f6",
+  measurementId: "G-PEYE4QSS49"
 };
 
 // Initialize Firebase
@@ -221,7 +222,7 @@ try {
     firebase.initializeApp(firebaseConfig);
     db = firebase.database();
 } catch(e) {
-    console.error("Firebase холбогдсонгүй. Та кодоо оруулсан уу?", e);
+    console.error("Firebase холбогдсонгүй.", e);
 }
 
 /* ---------- TRANSLATIONS ---------- */
