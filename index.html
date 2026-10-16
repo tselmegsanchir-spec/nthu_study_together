@@ -4,8 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>NTHU StudyBuddy 💜</title>
+<!-- Tailwind -->
 <script src="https://cdn.tailwindcss.com"></script>
 <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{nthu:{500:'#8A2BE2',600:'#7B1FA2',700:'#5e1488'},dk:'#0F0F13',card:'#181820',line:'#2A2A38'}}}}</script>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
+<!-- HTML5 QR Code Scanner -->
+<script src="https://unpkg.com/html5-qrcode"></script>
+
 <style>
 .hidden{display:none!important}
 body{font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif}
@@ -48,7 +56,6 @@ body{font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC","PingFang TC"
 </header>
 
 <main class="flex-grow w-full max-w-6xl mx-auto p-4 sm:p-6">
-
 <!-- HOME -->
 <section id="v-home" class="space-y-6">
  <div class="rounded-3xl p-8 sm:p-12 bg-gradient-to-br from-nthu-700 via-purple-900 to-dk text-white">
@@ -165,12 +172,18 @@ body{font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC","PingFang TC"
 <div id="m-qr" class="modal hidden"><div class="mbox">
  <h3 class="text-lg font-bold" data-i="qr_t"></h3>
  <p class="text-xs text-gray-400" data-i="qr_d"></p>
- <div class="w-40 h-40 mx-auto bg-white p-2 rounded-2xl"><img id="qr-img" class="w-full h-full" alt="" onerror="this.style.visibility='hidden'"></div>
+ <div class="w-40 h-40 mx-auto bg-white p-2 rounded-2xl relative">
+    <img id="qr-img" class="w-full h-full" alt="" onerror="this.style.visibility='hidden'">
+ </div>
  <div><div class="text-xs text-gray-400" data-i="qr_your"></div><div id="qr-my" class="text-3xl font-extrabold tracking-widest tabular-nums"></div></div>
- <input id="qr-in" class="inp text-center tracking-widest" inputmode="numeric" maxlength="6" data-p="qr_enter" onkeydown="event.key=='Enter'&&confirmQR()">
- <button class="btn-p w-full" onclick="confirmQR()" data-i="qr_ok"></button>
- <button class="btn-g w-full !text-xs" onclick="simQR()" data-i="qr_sim"></button>
- <button class="btn-g w-full" onclick="closeModal('m-qr')" data-i="cancel"></button>
+ 
+ <!-- Camera QR Reader -->
+ <div id="qr-reader" class="w-full mt-2 rounded-xl overflow-hidden hidden bg-black"></div>
+ <button id="btn-scan-cam" class="btn-p w-full bg-blue-500 hover:bg-blue-600 !mt-4" onclick="startScanner()">📷 Камераар QR уншуулах</button>
+
+ <input id="qr-in" class="inp text-center tracking-widest mt-2" inputmode="numeric" maxlength="6" data-p="qr_enter" onkeydown="event.key=='Enter'&&confirmQR()">
+ <button class="btn-p w-full bg-green-500 hover:bg-green-600" onclick="confirmQR()" data-i="qr_ok"></button>
+ <button class="btn-g w-full" onclick="closeModal('m-qr');stopScanner()" data-i="cancel"></button>
 </div></div>
 
 <div id="m-rate" class="modal hidden"><div class="mbox">
@@ -189,6 +202,28 @@ body{font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC","PingFang TC"
 <div id="toasts" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-[60] space-y-2 w-[90%] max-w-sm"></div>
 
 <script>
+/* =========================================
+   FIREBASE REALTIME DATABASE ХОЛБОЛТ
+   ========================================= */
+const firebaseConfig = {
+  apiKey: "ТА_FIREBASE_КОДОО_ЭНД_ТАВИНА",
+  authDomain: "ТА_FIREBASE_КОДОО_ЭНД_ТАВИНА",
+  databaseURL: "ТА_FIREBASE_КОДОО_ЭНД_ТАВИНА",
+  projectId: "ТА_FIREBASE_КОДОО_ЭНД_ТАВИНА",
+  storageBucket: "ТА_FIREBASE_КОДОО_ЭНД_ТАВИНА",
+  messagingSenderId: "ТА_FIREBASE_КОДОО_ЭНД_ТАВИНА",
+  appId: "ТА_FIREBASE_КОДОО_ЭНД_ТАВИНА"
+};
+
+// Initialize Firebase
+let db = null;
+try {
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.database();
+} catch(e) {
+    console.error("Firebase холбогдсонгүй. Та кодоо оруулсан уу?", e);
+}
+
 /* ---------- TRANSLATIONS ---------- */
 const T={
 en:{n_home:'🏠 Home',n_lobby:'📋 Study Lobby',n_profile:'👤 Profile',n_rules:'📖 Rules',
@@ -210,7 +245,7 @@ ice0:'Which assignment are you focusing on today?',ice1:'How much of your homewo
 rp0:'Haha same here!',rp1:'Nice, keep going 💪',rp2:'Another round?',
 t_break:'Break time ☕',t_focus:'Back to focus ⚡',t_done:'Session saved 🎉',t_short:'Under 1 minute, so this session was not counted.',t_report:'Silent report sent 🛡',t_freeze:'🧊 Streak Freeze used',t_posted:'Session published ✅',
 r_t:'⭐ Session finished',r_d:'Rate your buddy',r_quiet:'🤫 Quiet',r_focus:'⚡ Focused',r_friend:'🤝 Friendly',r_go:'Submit',r_rep:'🛡 Silent report',
-p_name:'NTHU Student (Guest)',p_av:'Choose your avatar',p_bg:'🎖 Titles & badges',you:'You',
+p_name:'NTHU Student',p_av:'Choose your avatar',p_bg:'🎖 Titles & badges',you:'You',
 av1:'Tech & Code',av2:'Sporty & Chill',av3:'Classic Scholar',av4:'Boba Lover',av5:'Creative Design',av6:'Focus Achiever',
 bg1:'First session',bg2:'3-day streak',bg3:'Night Owl',bg4:'NTHU Library Boss',bg5:'0.01% Focus Master',
 ti0:'Newcomer',ti1:'Library Regular',ti2:'NTHU Library Boss',ti3:'0.01% Focus Master',
@@ -231,7 +266,7 @@ f_mall:'所有模式',f_gall:'性別不限',f_gsame:'同性別',f_gopp:'異性�
 m_strict:'嚴格讀書 (50/10)',m_social:'讀書＋社交 (50/15)',loc_main:'總圖書館',loc_nanda:'南大校區圖書館',
 l_join:'配對並一起坐',l_empty:'沒有符合條件的揪團，自己發起一個吧！',l_mine:'你的揪團',
 su_t:'⚡ 快速配對',su_find:'尋找夥伴',cancel:'取消',po_t:'發起讀書揪團',po_topic:'你在讀什麼？',po_go:'發佈',
-qr_t:'📲 並肩簽到',qr_d:'把你的代碼給夥伴看，並輸入對方的代碼。確認後開始計時。',qr_your:'你的代碼',qr_enter:'夥伴的 6 位數代碼',qr_ok:'開始讀書',qr_sim:'⚡ (測試) 自動填入夥伴代碼',qr_bad:'代碼錯誤，請確認夥伴的螢幕。',
+qr_t:'📲 並肩簽到',qr_d:'把你的代碼給夥伴看，並掃描對方的 QR 或輸入代碼。確認後開始計時。',qr_your:'你的代碼 / QR',qr_enter:'手動輸入 6 位數代碼',qr_ok:'開始讀書',qr_sim:'⚡ (測試) 自動填入夥伴代碼',qr_bad:'代碼錯誤，請確認夥伴的螢幕。',
 ph_focus:'⚡ 專注時間',ph_break:'☕ 休息時間',ph_pass:'🚻 暫離洗手間',round:'第',pass_left:'剩餘暫離次數：{n}',b_pass:'🚻 暫離洗手間 (10 分鐘)',b_back:'我回來了',
 pass_on:'計時已暫停，夥伴會看到你正在休息 10 分鐘。',b_end:'🛑 結束讀書',demo:'展示加速 ×60',
 chat_t:'💬 休息聊天室',chat_ph:'輸入訊息…',send:'送出',chat_off:'安靜休息 💧 伸展一下、喝點水、讓眼睛休息。',
@@ -239,7 +274,7 @@ ice0:'你今天主要在準備哪一科的作業？',ice1:'作業完成幾成了
 rp0:'哈哈我也是！',rp1:'太棒了，繼續加油 💪',rp2:'再來一輪？',
 t_break:'休息時間 ☕',t_focus:'回到專注 ⚡',t_done:'已記錄本次讀書 🎉',t_short:'不到 1 分鐘，本次不列入計算。',t_report:'已匿名檢舉 🛡',t_freeze:'🧊 已使用凍結卡',t_posted:'揪團已發佈 ✅',
 r_t:'⭐ 讀書結束',r_d:'為你的夥伴評分',r_quiet:'🤫 安靜',r_focus:'⚡ 專注',r_friend:'🤝 友善',r_go:'送出',r_rep:'🛡 匿名檢舉',
-p_name:'清大同學 (訪客)',p_av:'選擇頭像',p_bg:'🎖 稱號與勳章',you:'你',
+p_name:'清大同學',p_av:'選擇頭像',p_bg:'🎖 稱號與勳章',you:'你',
 av1:'科技程式',av2:'運動悠閒',av3:'經典學霸',av4:'手搖飲愛好者',av5:'創意設計',av6:'專注達人',
 bg1:'第一次讀書',bg2:'連續 3 天',bg3:'夜貓子',bg4:'清大圖書館之王',bg5:'0.01% 專注大師',
 ti0:'新手',ti1:'圖書館常客',ti2:'清大圖書館之王',ti3:'0.01% 專注大師',
@@ -263,11 +298,28 @@ const AV=[
  {id:'TechCoder',f:'tech',g:'m',k:'av1'},{id:'SportyChill',f:'sporty',g:'m',k:'av2'},{id:'ClassicScholar',f:'scholar',g:'m',k:'av3'},
  {id:'BobaLover',f:'boba',g:'f',k:'av4'},{id:'CreativeDesign',f:'creative',g:'f',k:'av5'},{id:'FocusAchiever',f:'focus',g:'f',k:'av6'}];
 const img=(a,c)=>`<img class="${c||''}" alt="" src="images/avatar-${a.f}.png" onerror="this.onerror=null;this.src='https://api.dicebear.com/7.x/bottts/svg?seed=${a.id}'">`;
-let uid=4,ses=null,pending=null,rate=5,live=34;
-const lobby=[
- {id:1,n:'Emily Lin',d:'EE',m:'social',l:'main',a:3,topic:'Signals & Systems HW'},
- {id:2,n:'Kevin Wang',d:'CS',m:'strict',l:'main',a:0,topic:'Algorithms midterm'},
- {id:3,n:'Chen Yu',d:'Physics',m:'social',l:'nanda',a:4,topic:'Quantum mechanics'}];
+
+let ses=null,pending=null,rate=5,live=34;
+// Сэрвэрээс ирэх өрөөнүүд энд хадгалагдана
+let lobby=[]; 
+let mySessionId = localStorage.getItem('my_uid') || String(Date.now());
+localStorage.setItem('my_uid', mySessionId);
+
+/* Сэрвэр рүү өрөөний мэдээллийг чагнах */
+if(db) {
+    db.ref('lobby').on('value', (snapshot) => {
+        lobby = [];
+        snapshot.forEach((child) => {
+            const data = child.val();
+            lobby.push({
+                fbKey: child.key,
+                me: data.uid === mySessionId,
+                n: data.n, d: data.d, m: data.m, l: data.l, a: data.a, topic: data.topic
+            });
+        });
+        renderLobby();
+    });
+}
 
 /* ---------- NAV / THEME / LANG ---------- */
 function show(v){
@@ -303,12 +355,28 @@ function renderLobby(){
   </div>
   <div class="text-xs">📌 ${t('m_'+x.m)}</div>
   <div class="text-xs text-gray-400">📖 ${esc(x.topic)}</div>
-  ${x.me?`<div class="text-xs text-nthu-500">${t('l_mine')}</div>`:`<button class="btn-p w-full" onclick="join(${x.id})">🤝 ${t('l_join')}</button>`}
+  ${x.me?`<div class="text-xs text-nthu-500">${t('l_mine')}</div>`:`<button class="btn-p w-full" onclick="join('${x.fbKey}')">🤝 ${t('l_join')}</button>`}
  </div>`).join(''):`<p class="text-sm text-gray-400 col-span-full">${t('l_empty')}</p>`;
 }
 function submitPost(){
- lobby.unshift({id:++uid,me:1,d:'Guest',m:$('po-mode').value,l:$('po-loc').value,a:S.av,topic:$('po-topic').value.trim()||'—'});
- $('po-topic').value='';closeModal('m-post');renderLobby();toast(t('t_posted'));show('lobby');
+    if(!db) return toast("Firebase сэрвэр холбогдоогүй байна!");
+    
+    // Сэрвэр рүү өрөө илгээх
+    db.ref('lobby').push({
+        uid: mySessionId,
+        n: 'NTHU Student',
+        d: 'Library',
+        m: $('po-mode').value,
+        l: $('po-loc').value,
+        a: S.av,
+        topic: $('po-topic').value.trim() || '—',
+        timestamp: Date.now()
+    });
+
+    $('po-topic').value='';
+    closeModal('m-post');
+    toast(t('t_posted'));
+    show('lobby');
 }
 
 /* ---------- MATCH + QR CHECK-IN ---------- */
@@ -317,23 +385,58 @@ function findMatch(){
  const m=$('su-mode').value,g=$('su-gender').value,me=AV[S.av].g;
  let pool=lobby.filter(x=>!x.me&&x.m==m&&(g=='all'||(g=='same')==(AV[x.a].g==me)));
  if(!pool.length)pool=lobby.filter(x=>!x.me);
+ if(!pool.length) return toast(t('l_empty'));
  closeModal('m-setup');openQR(pool[Math.floor(Math.random()*pool.length)],m);
 }
-function join(id){openQR(lobby.find(x=>x.id==id),lobby.find(x=>x.id==id).m)}
-const rnd6=()=>String(Math.floor(100000+Math.random()*900000));
-function openQR(b,mode){
- pending={b,mode,my:rnd6(),their:rnd6()};
- $('qr-img').style.visibility='visible';
- $('qr-img').src='https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=NTHUSB-'+pending.my;
- $('qr-my').textContent=pending.my;$('qr-in').value='';openModal('m-qr');
+function join(fbKey){
+    const b = lobby.find(x=>x.fbKey==fbKey);
+    openQR(b, b.m);
 }
-function simQR(){$('qr-in').value=pending.their;confirmQR()}
+const rnd6=()=>String(Math.floor(100000+Math.random()*900000));
+
+function openQR(b,mode){
+ pending={b,mode,my:rnd6()}; // Бодит нөхцөлд нөгөө хүний сэрвэрээс кодыг нь татах хэрэгтэй байдаг ч энэ жишээнд камерын уншилтанд л ач холбогдол өгье
+ $('qr-img').style.visibility='visible';$('qr-img').src='https://api.qrserver.com/v1/create-qr-code/?size=160x160&data='+pending.my;
+ $('qr-my').textContent=pending.my;
+ $('qr-in').value='';
+ openModal('m-qr');
+}
+
+/* --- Бодит Камер Scanner --- */
+let html5QrcodeScanner = null;
+function startScanner() {
+    $('qr-img').classList.add('hidden');
+    $('btn-scan-cam').classList.add('hidden');$('qr-reader').classList.remove('hidden');
+    
+    html5QrcodeScanner = new Html5QrcodeScanner(
+        "qr-reader", { fps: 10, qrbox: {width: 200, height: 200} }, false);
+    html5QrcodeScanner.render((decodedText, decodedResult) => {
+        // Камер QR олж харвал
+        $('qr-in').value = decodedText.trim();
+        confirmQR();
+        stopScanner();
+    }, (errorMessage) => { /* ignore */ });
+}
+function stopScanner() {
+    if(html5QrcodeScanner) {
+        html5QrcodeScanner.clear();
+        html5QrcodeScanner = null;
+    }
+    $('qr-reader').classList.add('hidden');
+    $('qr-img').classList.remove('hidden');$('btn-scan-cam').classList.remove('hidden');
+}
+
 function confirmQR(){
- if($('qr-in').value.trim()!==pending.their)return toast(t('qr_bad'));
+ const val = $('qr-in').value.trim();
+ if(val.length < 5) return toast(t('qr_bad'));
+ 
+ stopScanner();
  closeModal('m-qr');
  const m=MODE[pending.mode];
  ses={b:pending.b,mode:pending.mode,ph:'focus',left:m.f*60,round:1,passes:2,pl:0,min:0,sp:$('sp').checked?60:1,end:0};
- $('chat-log').innerHTML='';show('session');renderSes();
+ $('chat-log').innerHTML='';
+ show('session');
+ renderSes();
 }
 
 /* ---------- SESSION ---------- */
@@ -341,16 +444,12 @@ const fmt=s=>{s=Math.max(0,Math.ceil(s));return String(Math.floor(s/60)).padStar
 function renderSes(){
  if(!ses)return;
  const m=MODE[ses.mode],tot=ses.ph=='focus'?m.f*60:ses.ph=='break'?m.b*60:600,left=ses.ph=='pass'?ses.pl:ses.left;
- $('tm').textContent=fmt(left);$('tm-ph').textContent=t('ph_'+ses.ph);
- $('bar').style.width=Math.min(100,100-left/tot*100)+'%';
- $('s-av').innerHTML=img(AV[ses.b.a],'w-full h-full');$('s-name').textContent=ses.b.n;$('s-mode').textContent=t('m_'+ses.mode);
- $('s-round').textContent=S.lang=='zh'?t('round')+' '+ses.round+' 輪':t('round')+' '+ses.round;
+ $('tm').textContent=fmt(left);$('tm-ph').textContent=t('ph_'+ses.ph);$('bar').style.width=Math.min(100,100-left/tot*100)+'%';
+ $('s-av').innerHTML=img(AV[ses.b.a],'w-full h-full');$('s-name').textContent=ses.b.n;$('s-mode').textContent=t('m_'+ses.mode);$('s-round').textContent=S.lang=='zh'?t('round')+' '+ses.round+' 輪':t('round')+' '+ses.round;
  $('s-passes').textContent=t('pass_left').replace('{n}',ses.passes);
- $('pass-on').classList.toggle('hidden',ses.ph!='pass');
- $('b-pass').disabled=ses.ph!='focus'||ses.passes<1;
+ $('pass-on').classList.toggle('hidden',ses.ph!='pass');$('b-pass').disabled=ses.ph!='focus'||ses.passes<1;
  const br=ses.ph=='break',soc=ses.mode=='social';
- $('chat').classList.toggle('hidden',!br);$('chat-on').classList.toggle('hidden',!soc);$('chat-off').classList.toggle('hidden',soc);
- $('ice').textContent='💡 '+t('ice'+(ses.round%3));
+ $('chat').classList.toggle('hidden',!br);$('chat-on').classList.toggle('hidden',!soc);$('chat-off').classList.toggle('hidden',soc);$('ice').textContent='💡 '+t('ice'+(ses.round%3));
 }
 setInterval(()=>{
  if(!ses||ses.end)return;
@@ -402,10 +501,8 @@ function finish(report){
 const title=()=>S.min>=3000?'ti3':S.min>=600?'ti2':S.min>=60?'ti1':'ti0';
 const BG=[['🌱','bg1',()=>S.ses>=1],['⚡','bg2',()=>S.streak>=3],['🦉','bg3',()=>S.owl],['📚','bg4',()=>S.min>=600],['🔥','bg5',()=>S.min>=3000]];
 function renderStats(){
- $('st-streak').textContent=S.streak+' '+t('days');
- $('st-title').textContent=t(title());
- $('st-hours').textContent=t('hrs').replace('{h}',(S.min/60).toFixed(1));
- $('p-title').textContent=t(title());
+ $('st-streak').textContent=S.streak+' '+t('days');$('st-title').textContent=t(title());
+ $('st-hours').textContent=t('hrs').replace('{h}',(S.min/60).toFixed(1));$('p-title').textContent=t(title());
 }
 function renderHdr(){$('hd-av').innerHTML=img(AV[S.av],'w-full h-full');$('p-av').innerHTML=img(AV[S.av],'w-full h-full')}
 function pick(i){S.av=i;save();renderHdr();renderProfile();renderLobby()}
