@@ -1,499 +1,422 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NTHU StudyBuddy 💜 | Focus Together at Library</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        nthu: {
-                            50: '#fcf5ff',
-                            100: '#f7e8ff',
-                            500: '#8A2BE2', /* NTHU Purple Accent */
-                            600: '#7B1FA2',
-                            700: '#5e1488',
-                            900: '#34034f',
-                        },
-                        darkbg: '#0F0F13',
-                        darkcard: '#181820',
-                        darkborder: '#2A2A38',
-                    },
-                    fontFamily: {
-                        sans: ['Plus Jakarta Sans', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        .glow-purple { box-shadow: 0 0 25px rgba(138, 43, 226, 0.3); }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NTHU StudyBuddy 💜</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={darkMode:'class',theme:{extend:{colors:{nthu:{500:'#8A2BE2',600:'#7B1FA2',700:'#5e1488'},dk:'#0F0F13',card:'#181820',line:'#2A2A38'}}}}</script>
+<style>
+.hidden{display:none!important}
+body{font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif}
+</style>
+<style type="text/tailwindcss">
+@layer components{
+ .card{@apply rounded-2xl border border-gray-200 dark:border-line bg-white dark:bg-card p-5}
+ .btn-p{@apply px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-nthu-500 hover:bg-nthu-600 transition active:scale-95 disabled:opacity-40}
+ .btn-g{@apply px-4 py-2.5 rounded-xl text-sm font-semibold bg-gray-100 dark:bg-line hover:opacity-80 transition active:scale-95 disabled:opacity-40}
+ .inp{@apply w-full p-2.5 text-sm rounded-xl bg-gray-50 dark:bg-dk border border-gray-200 dark:border-line outline-none focus:border-nthu-500}
+ .chip{@apply px-3 py-1.5 rounded-full text-xs border border-nthu-500/50 cursor-pointer select-none}
+ .chip.on{@apply bg-nthu-500 text-white}
+ .nav{@apply px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap flex-1 md:flex-none text-gray-500 dark:text-gray-400}
+ .nav.on{@apply bg-white dark:bg-nthu-600 text-nthu-600 dark:text-white shadow}
+ .modal{@apply fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4}
+ .mbox{@apply card w-full max-w-sm space-y-4 text-center border-nthu-500/30}
+}
+</style>
 </head>
-<body class="bg-gray-50 dark:bg-darkbg text-gray-900 dark:text-gray-100 font-sans min-h-screen transition-colors duration-300 flex flex-col">
+<body class="bg-gray-50 dark:bg-dk text-gray-900 dark:text-gray-100 min-h-screen flex flex-col">
 
-    <!-- TOP NAVIGATION HEADER -->
-    <header class="sticky top-0 z-40 bg-white/80 dark:bg-darkcard/80 backdrop-blur-md border-b border-gray-200 dark:border-darkborder px-4 lg:px-8 py-3">
-        <div class="max-w-7xl mx-auto flex items-center justify-between">
-            
-            <!-- Logo Placeholder (Uses images/logo.png if available, fallback to icon) -->
-            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('home')">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-nthu-700 to-nthu-500 flex items-center justify-center text-white text-xl font-extrabold shadow-md glow-purple overflow-hidden">
-                    <img src="images/logo.png" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" class="w-full h-full object-cover">
-                    <span class="hidden">💜</span>
-                </div>
-                <div>
-                    <span class="font-extrabold text-lg tracking-tight bg-gradient-to-r from-nthu-600 to-purple-400 bg-clip-text text-transparent">NTHU StudyBuddy</span>
-                    <span class="block text-[10px] font-mono text-gray-400 -mt-1">NATIONAL TSING HUA UNIV</span>
-                </div>
-            </div>
+<header class="sticky top-0 z-40 bg-white/80 dark:bg-card/80 backdrop-blur border-b border-gray-200 dark:border-line px-4 py-3">
+ <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-2">
+  <div class="flex items-center gap-2 cursor-pointer" onclick="show('home')">
+   <div id="logo" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-nthu-700 to-nthu-500 flex items-center justify-center overflow-hidden">💜</div>
+   <div><div class="font-extrabold leading-tight">NTHU StudyBuddy</div><div class="text-[10px] text-gray-400 leading-tight">National Tsing Hua University</div></div>
+  </div>
+  <nav class="order-last md:order-none w-full md:w-auto flex gap-1 overflow-x-auto bg-gray-100 dark:bg-dk p-1 rounded-xl">
+   <button class="nav" data-v="home" onclick="show('home')" data-i="n_home"></button>
+   <button class="nav" data-v="lobby" onclick="show('lobby')" data-i="n_lobby"></button>
+   <button class="nav" data-v="profile" onclick="show('profile')" data-i="n_profile"></button>
+   <button class="nav" data-v="rules" onclick="show('rules')" data-i="n_rules"></button>
+  </nav>
+  <div class="flex items-center gap-2">
+   <button id="th" onclick="toggleTheme()" class="btn-g !px-3"></button>
+   <button id="lg" onclick="toggleLang()" class="btn-g !px-3 text-xs"></button>
+   <button id="hd-av" onclick="show('profile')" class="w-9 h-9 rounded-full overflow-hidden border-2 border-nthu-500"></button>
+  </div>
+ </div>
+</header>
 
-            <!-- Navigation Links -->
-            <nav class="hidden md:flex items-center space-x-1 bg-gray-100 dark:bg-darkbg p-1 rounded-xl border border-gray-200 dark:border-darkborder text-sm font-medium">
-                <button onclick="switchTab('home')" id="nav-home" class="nav-btn px-4 py-2 rounded-lg bg-white dark:bg-nthu-600 text-nthu-600 dark:text-white shadow-sm font-semibold" data-i18n="nav_home">🏠 Home</button>
-                <button onclick="switchTab('lobby')" id="nav-lobby" class="nav-btn px-4 py-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-nthu-500" data-i18n="nav_lobby">📋 Study Lobby</button>
-                <button onclick="switchTab('profile')" id="nav-profile" class="nav-btn px-4 py-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-nthu-500" data-i18n="nav_profile">👤 Profile & Badges</button>
-                <button onclick="switchTab('rules')" id="nav-rules" class="nav-btn px-4 py-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-nthu-500" data-i18n="nav_rules">📖 Rules</button>
-            </nav>
+<main class="flex-grow w-full max-w-6xl mx-auto p-4 sm:p-6">
 
-            <!-- Controls -->
-            <div class="flex items-center space-x-3">
-                <span class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono font-medium bg-purple-500/10 text-purple-600 dark:text-purple-300 border border-purple-500/20">
-                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> Guest Mode
-                </span>
+<!-- HOME -->
+<section id="v-home" class="space-y-6">
+ <div class="rounded-3xl p-8 sm:p-12 bg-gradient-to-br from-nthu-700 via-purple-900 to-dk text-white">
+  <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-xs mb-4"><span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span><span data-i="live"></span><span>·</span><span id="live"></span></div>
+  <h1 class="text-4xl sm:text-6xl font-extrabold leading-tight"><span data-i="hero1"></span><br><span class="text-purple-300" data-i="hero2"></span></h1>
+  <p class="mt-4 max-w-xl text-gray-300" data-i="hero_p"></p>
+  <div class="mt-6 flex flex-wrap gap-3">
+   <button class="btn-p !bg-white !text-nthu-700" onclick="openSetup()" data-i="b_quick"></button>
+   <button class="btn-g !bg-white/10 !text-white" onclick="show('lobby')" data-i="b_lobby"></button>
+  </div>
+ </div>
+ <div class="grid md:grid-cols-3 gap-4">
+  <div class="card"><div class="text-xs text-gray-500" data-i="s_streak"></div><div id="st-streak" class="text-3xl font-extrabold">0</div><div class="text-xs text-green-500" data-i="s_freeze"></div></div>
+  <div class="card"><div class="text-xs text-gray-500" data-i="s_title"></div><div id="st-title" class="text-xl font-bold mt-1"></div><div id="st-hours" class="text-xs text-gray-400"></div></div>
+  <div class="card"><div class="text-xs text-gray-500" data-i="s_rating"></div><div class="text-3xl font-extrabold">4.9 ⭐</div><div class="text-xs text-purple-400" data-i="s_badges"></div></div>
+ </div>
+ <div class="space-y-3">
+  <h2 class="text-xl font-bold" data-i="how_t"></h2>
+  <div class="grid sm:grid-cols-3 gap-4">
+   <div class="card"><b data-i="h1t"></b><p class="text-sm text-gray-500 mt-1" data-i="h1d"></p></div>
+   <div class="card"><b data-i="h2t"></b><p class="text-sm text-gray-500 mt-1" data-i="h2d"></p></div>
+   <div class="card"><b data-i="h3t"></b><p class="text-sm text-gray-500 mt-1" data-i="h3d"></p></div>
+  </div>
+ </div>
+</section>
 
-                <button onclick="toggleTheme()" class="p-2.5 rounded-xl bg-gray-100 dark:bg-darkbg border border-gray-200 dark:border-darkborder text-gray-600 dark:text-gray-300 hover:border-nthu-500 transition">
-                    <i id="theme-icon" class="fa-solid fa-moon text-lg"></i>
-                </button>
+<!-- LOBBY -->
+<section id="v-lobby" class="hidden space-y-5">
+ <div class="card space-y-4">
+  <div class="flex flex-wrap justify-between items-center gap-3">
+   <div><h2 class="text-xl font-bold" data-i="l_title"></h2><p class="text-xs text-gray-500" data-i="l_desc"></p></div>
+   <button class="btn-p" onclick="openModal('m-post')" data-i="l_post"></button>
+  </div>
+  <div class="grid sm:grid-cols-3 gap-3">
+   <select id="f-mode" class="inp" onchange="renderLobby()"><option value="all" data-i="f_mall"></option><option value="strict" data-i="m_strict"></option><option value="social" data-i="m_social"></option></select>
+   <select id="f-gender" class="inp" onchange="renderLobby()"><option value="all" data-i="f_gall"></option><option value="same" data-i="f_gsame"></option><option value="opp" data-i="f_gopp"></option></select>
+   <select id="f-loc" class="inp" onchange="renderLobby()"><option value="all" data-i="f_lall"></option><option value="main" data-i="loc_main"></option><option value="nanda" data-i="loc_nanda"></option></select>
+  </div>
+ </div>
+ <div id="lobby" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+</section>
 
-                <!-- Language Switcher Button -->
-                <button onclick="toggleLanguage()" id="lang-btn" class="px-3 py-1.5 text-xs font-mono rounded-xl bg-nthu-500/10 border border-nthu-500/30 font-bold text-nthu-400 hover:bg-nthu-500/20 transition">
-                    🌐 EN / 繁中
-                </button>
+<!-- SESSION -->
+<section id="v-session" class="hidden">
+ <div class="card max-w-2xl mx-auto text-center space-y-5 p-6 sm:p-8">
+  <div class="flex items-center justify-center gap-3">
+   <div id="s-av" class="w-14 h-14 rounded-full overflow-hidden border-2 border-nthu-500"></div>
+   <div class="text-left"><div id="s-name" class="font-bold text-lg"></div><span id="s-mode" class="text-[11px] px-2 py-0.5 rounded bg-nthu-500/20 text-nthu-500"></span></div>
+  </div>
+  <div>
+   <div id="tm-ph" class="text-sm text-gray-400"></div>
+   <div id="tm" class="text-6xl sm:text-8xl font-extrabold tabular-nums tracking-tight">50:00</div>
+   <div class="h-2 rounded-full bg-gray-200 dark:bg-line overflow-hidden mt-3"><div id="bar" class="h-full bg-nthu-500 transition-all" style="width:0"></div></div>
+   <div class="flex justify-between text-xs text-gray-400 mt-1"><span id="s-round"></span><span id="s-passes"></span></div>
+  </div>
+  <div id="pass-on" class="hidden text-sm p-3 rounded-xl bg-yellow-500/10 text-yellow-600 dark:text-yellow-400"><span data-i="pass_on"></span> <button class="btn-g ml-2 !py-1" onclick="backFromPass()" data-i="b_back"></button></div>
+  <div class="flex flex-wrap justify-center gap-3">
+   <button id="b-pass" class="btn-g" onclick="usePass()" data-i="b_pass"></button>
+   <button class="btn-g !text-red-500" onclick="endSession()" data-i="b_end"></button>
+  </div>
+  <label class="flex items-center justify-center gap-2 text-xs text-gray-400"><input id="sp" type="checkbox" onchange="ses&&(ses.sp=this.checked?60:1)"><span data-i="demo"></span></label>
+  <div id="chat" class="hidden text-left border-t border-gray-200 dark:border-line pt-4 space-y-3">
+   <div id="chat-on" class="space-y-3">
+    <h4 class="font-bold text-sm" data-i="chat_t"></h4>
+    <div id="ice" class="text-xs p-3 rounded-xl bg-nthu-500/10"></div>
+    <div id="chat-log" class="h-36 overflow-y-auto p-3 rounded-xl bg-gray-50 dark:bg-dk space-y-2 flex flex-col"></div>
+    <div class="flex gap-2 text-xl"><button onclick="say('👍')">👍</button><button onclick="say('☕')">☕</button><button onclick="say('💪')">💪</button><button onclick="say('😴')">😴</button></div>
+    <div class="flex gap-2"><input id="chat-in" class="inp" data-p="chat_ph" onkeydown="event.key=='Enter'&&sendChat()"><button class="btn-p" onclick="sendChat()" data-i="send"></button></div>
+   </div>
+   <div id="chat-off" class="hidden text-sm text-center text-gray-500" data-i="chat_off"></div>
+  </div>
+ </div>
+</section>
 
-                <!-- Profile Avatar -->
-                <div onclick="switchTab('profile')" class="w-9 h-9 rounded-full bg-nthu-500/20 border-2 border-nthu-500 flex items-center justify-center cursor-pointer overflow-hidden">
-                    <img id="header-avatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=TechCoder" class="w-full h-full object-cover">
-                </div>
-            </div>
-        </div>
-    </header>
+<!-- PROFILE -->
+<section id="v-profile" class="hidden space-y-5">
+ <div class="card flex items-center gap-5">
+  <div id="p-av" class="w-20 h-20 rounded-full overflow-hidden border-4 border-nthu-500 shrink-0"></div>
+  <div><h2 class="text-2xl font-bold" data-i="p_name"></h2><div class="text-xs text-gray-400">@gapp.nthu.edu.tw</div><div id="p-title" class="mt-2 inline-block text-xs px-3 py-1 rounded-full bg-nthu-500/20 text-nthu-500 font-semibold"></div></div>
+ </div>
+ <div class="card space-y-3"><h3 class="font-bold text-sm" data-i="p_av"></h3><div id="avs" class="grid grid-cols-3 sm:grid-cols-6 gap-3"></div></div>
+ <div class="card space-y-3"><h3 class="font-bold text-sm" data-i="p_bg"></h3><div id="bgs" class="grid grid-cols-2 sm:grid-cols-5 gap-3"></div></div>
+</section>
 
-    <!-- MAIN CONTAINER -->
-    <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+<!-- RULES -->
+<section id="v-rules" class="hidden">
+ <div class="card space-y-3 p-8">
+  <h2 class="text-2xl font-bold" data-i="ru_t"></h2>
+  <ul class="list-disc pl-5 space-y-2 text-sm text-gray-600 dark:text-gray-400">
+   <li data-h="ru1"></li><li data-h="ru2"></li><li data-h="ru3"></li><li data-h="ru4"></li><li data-h="ru5"></li>
+  </ul>
+ </div>
+</section>
+</main>
 
-        <!-- ==================== HOME VIEW ==================== -->
-        <section id="view-home" class="space-y-8">
-            <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-nthu-900 via-darkcard to-darkbg border border-nthu-500/30 p-8 sm:p-12 text-white glow-purple">
-                <div class="max-w-2xl relative z-10 space-y-4">
-                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-nthu-500/20 border border-nthu-400/30 text-nthu-100 text-xs font-mono">
-                        <span class="w-2 h-2 rounded-full bg-green-400 animate-ping"></span>
-                        <span data-i18n="hero_live_tag">LIVE NTHU CAMPUS</span>
-                        <span>•</span>
-                        <span id="live-count-text">34 Students Studying Now</span>
-                    </div>
+<!-- MODALS -->
+<div id="m-setup" class="modal hidden"><div class="mbox">
+ <h3 class="text-lg font-bold" data-i="su_t"></h3>
+ <select id="su-mode" class="inp"><option value="strict" data-i="m_strict"></option><option value="social" data-i="m_social"></option></select>
+ <select id="su-gender" class="inp"><option value="all" data-i="f_gall"></option><option value="same" data-i="f_gsame"></option><option value="opp" data-i="f_gopp"></option></select>
+ <button class="btn-p w-full" onclick="findMatch()" data-i="su_find"></button>
+ <button class="btn-g w-full" onclick="closeModal('m-setup')" data-i="cancel"></button>
+</div></div>
 
-                    <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight" data-i18n="hero_title">
-                        Focus Together at <span class="bg-gradient-to-r from-purple-300 to-nthu-500 bg-clip-text text-transparent">NTHU Library</span> 📚
-                    </h1>
+<div id="m-post" class="modal hidden"><div class="mbox">
+ <h3 class="text-lg font-bold" data-i="po_t"></h3>
+ <select id="po-mode" class="inp"><option value="strict" data-i="m_strict"></option><option value="social" data-i="m_social"></option></select>
+ <select id="po-loc" class="inp"><option value="main" data-i="loc_main"></option><option value="nanda" data-i="loc_nanda"></option></select>
+ <input id="po-topic" class="inp" maxlength="60" data-p="po_topic">
+ <button class="btn-p w-full" onclick="submitPost()" data-i="po_go"></button>
+ <button class="btn-g w-full" onclick="closeModal('m-post')" data-i="cancel"></button>
+</div></div>
 
-                    <p class="text-gray-300 text-sm sm:text-base leading-relaxed" data-i18n="hero_subtitle">
-                        Stop scrolling alone on your phone. Pair up with a study buddy, scan QR code, and boost your productivity with 50/10 or 50/15 Pomodoro sessions!
-                    </p>
+<div id="m-qr" class="modal hidden"><div class="mbox">
+ <h3 class="text-lg font-bold" data-i="qr_t"></h3>
+ <p class="text-xs text-gray-400" data-i="qr_d"></p>
+ <div class="w-40 h-40 mx-auto bg-white p-2 rounded-2xl"><img id="qr-img" class="w-full h-full" alt="" onerror="this.style.visibility='hidden'"></div>
+ <div><div class="text-xs text-gray-400" data-i="qr_your"></div><div id="qr-my" class="text-3xl font-extrabold tracking-widest tabular-nums"></div></div>
+ <input id="qr-in" class="inp text-center tracking-widest" inputmode="numeric" maxlength="6" data-p="qr_enter" onkeydown="event.key=='Enter'&&confirmQR()">
+ <button class="btn-p w-full" onclick="confirmQR()" data-i="qr_ok"></button>
+ <button class="btn-g w-full !text-xs" onclick="simQR()" data-i="qr_sim"></button>
+ <button class="btn-g w-full" onclick="closeModal('m-qr')" data-i="cancel"></button>
+</div></div>
 
-                    <div class="pt-4 flex flex-wrap gap-4">
-                        <button onclick="startQuickMatch()" class="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-nthu-500 to-purple-600 hover:from-nthu-600 hover:to-purple-700 font-bold text-white shadow-lg glow-purple flex items-center gap-2 transition hover:scale-105" data-i18n="btn_quick_match">
-                            <i class="fa-solid fa-bolt text-yellow-300"></i> Start Quick Match
-                        </button>
-                        <button onclick="switchTab('lobby')" class="px-6 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 font-semibold text-white backdrop-blur-md flex items-center gap-2 transition" data-i18n="btn_browse_lobby">
-                            <i class="fa-solid fa-list-ul"></i> Browse Study Lobby
-                        </button>
-                    </div>
-                </div>
-            </div>
+<div id="m-rate" class="modal hidden"><div class="mbox">
+ <h3 class="text-lg font-bold" data-i="r_t"></h3>
+ <p class="text-xs text-gray-400" data-i="r_d"></p>
+ <div id="stars" class="flex justify-center gap-1"></div>
+ <div class="flex flex-wrap justify-center gap-2">
+  <span class="chip" onclick="this.classList.toggle('on')" data-i="r_quiet"></span>
+  <span class="chip" onclick="this.classList.toggle('on')" data-i="r_focus"></span>
+  <span class="chip" onclick="this.classList.toggle('on')" data-i="r_friend"></span>
+ </div>
+ <button class="btn-p w-full" onclick="finish(false)" data-i="r_go"></button>
+ <button class="w-full text-xs text-red-400 py-1" onclick="finish(true)" data-i="r_rep"></button>
+</div></div>
 
-            <!-- Stats Bar -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="p-5 rounded-2xl bg-white dark:bg-darkcard border border-gray-200 dark:border-darkborder flex items-center space-x-4">
-                    <div class="w-12 h-12 rounded-xl bg-orange-500/10 text-orange-500 flex items-center justify-center text-2xl font-bold">🔥</div>
-                    <div>
-                        <span class="text-xs text-gray-500 font-medium block" data-i18n="stat_streak_label">Current Streak</span>
-                        <span class="text-2xl font-extrabold font-mono text-gray-800 dark:text-white">5 Days</span>
-                        <span class="text-[10px] text-green-500 block" data-i18n="stat_streak_sub">🧊 Streak Freeze Active</span>
-                    </div>
-                </div>
+<div id="toasts" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-[60] space-y-2 w-[90%] max-w-sm"></div>
 
-                <div class="p-5 rounded-2xl bg-white dark:bg-darkcard border border-gray-200 dark:border-darkborder flex items-center space-x-4">
-                    <div class="w-12 h-12 rounded-xl bg-nthu-500/10 text-nthu-500 flex items-center justify-center text-2xl font-bold">🏆</div>
-                    <div>
-                        <span class="text-xs text-gray-500 font-medium block" data-i18n="stat_title_label">Current Title</span>
-                        <span class="text-lg font-bold text-gray-800 dark:text-white">NTHU Library Boss</span>
-                        <span class="text-[10px] text-gray-400 block" data-i18n="stat_title_sub">42 hrs focused total</span>
-                    </div>
-                </div>
+<script>
+/* ---------- TRANSLATIONS ---------- */
+const T={
+en:{n_home:'🏠 Home',n_lobby:'📋 Study Lobby',n_profile:'👤 Profile',n_rules:'📖 Rules',
+live:'LIVE NTHU CAMPUS',live_n:'{n} students studying now',hero1:'Focus Together',hero2:'at the Library',
+hero_p:'Stop scrolling alone. Sit next to a study buddy, check in with a code, and focus for 50 minutes. Then take your break together.',
+b_quick:'⚡ Quick Match',b_lobby:'📋 Browse Study Lobby',
+s_streak:'Current streak',s_title:'Current title',s_rating:'Peer rating',s_freeze:'🧊 1 Streak Freeze per week',days:'days',hrs:'{h} hrs focused',s_badges:'🤫 Quiet · ⚡ Focused',
+how_t:'How it works',h1t:'Pick a mode',h1d:'Strict Study (50/10) or Study & Social (50/15), plus optional filters.',h2t:'Check in side by side',h2d:'Sit together and swap codes. The timer starts only after you enter your buddy’s code.',h3t:'Focus, then break',h3d:'50 quiet minutes, then rest or chat together.',
+l_title:'📋 Study Lobby',l_desc:'Find a study partner in the NTHU libraries',l_post:'➕ Post a session',
+f_mall:'All modes',f_gall:'Any gender',f_gsame:'Same gender',f_gopp:'Opposite gender',f_lall:'All libraries',
+m_strict:'Strict Study (50/10)',m_social:'Study & Social (50/15)',loc_main:'Main Library (總圖)',loc_nanda:'Nanda Library (南大)',
+l_join:'Match & sit together',l_empty:'No sessions match your filters. Post your own!',l_mine:'Your post',
+su_t:'⚡ Quick Match',su_find:'Find a buddy',cancel:'Cancel',po_t:'Post a study session',po_topic:'What are you working on?',po_go:'Publish',
+qr_t:'📲 Check in side by side',qr_d:'Show your code to your buddy and enter theirs. The timer starts once you confirm.',qr_your:'Your code',qr_enter:'Buddy’s 6-digit code',qr_ok:'Start session',qr_sim:'⚡ (Test) Fill in buddy’s code',qr_bad:'Wrong code. Check your buddy’s screen.',
+ph_focus:'⚡ Focus time',ph_break:'☕ Break time',ph_pass:'🚻 Bathroom pass',round:'Round',pass_left:'Passes left: {n}',b_pass:'🚻 Bathroom pass (10 min)',b_back:'I’m back',
+pass_on:'Timer paused. Your buddy sees you’re on a 10 min break.',b_end:'🛑 End session',demo:'Demo speed ×60',
+chat_t:'💬 Break chat',chat_ph:'Type a message…',send:'Send',chat_off:'Quiet break 💧 Stretch, drink water, rest your eyes.',
+ice0:'Which assignment are you focusing on today?',ice1:'How much of your homework is done?',ice2:'Which coffee or boba spot do you recommend?',
+rp0:'Haha same here!',rp1:'Nice, keep going 💪',rp2:'Another round?',
+t_break:'Break time ☕',t_focus:'Back to focus ⚡',t_done:'Session saved 🎉',t_short:'Under 1 minute, so this session was not counted.',t_report:'Silent report sent 🛡',t_freeze:'🧊 Streak Freeze used',t_posted:'Session published ✅',
+r_t:'⭐ Session finished',r_d:'Rate your buddy',r_quiet:'🤫 Quiet',r_focus:'⚡ Focused',r_friend:'🤝 Friendly',r_go:'Submit',r_rep:'🛡 Silent report',
+p_name:'NTHU Student (Guest)',p_av:'Choose your avatar',p_bg:'🎖 Titles & badges',you:'You',
+av1:'Tech & Code',av2:'Sporty & Chill',av3:'Classic Scholar',av4:'Boba Lover',av5:'Creative Design',av6:'Focus Achiever',
+bg1:'First session',bg2:'3-day streak',bg3:'Night Owl',bg4:'NTHU Library Boss',bg5:'0.01% Focus Master',
+ti0:'Newcomer',ti1:'Library Regular',ti2:'NTHU Library Boss',ti3:'0.01% Focus Master',
+ru_t:'📖 Culture & Rules',
+ru1:'<b>Library quiet policy:</b> no talking during the 50 minute focus time.',
+ru2:'<b>Side-by-side check-in:</b> both of you enter each other’s code before the timer starts.',
+ru3:'<b>Break chat:</b> only in Study & Social mode, during the 15 minute break.',
+ru4:'<b>Bathroom pass:</b> max 2 per session, 10 minutes each. The timer pauses.',
+ru5:'<b>Silent report:</b> report distracting behavior after a session. Your buddy is not notified.'},
+zh:{n_home:'🏠 首頁',n_lobby:'📋 讀書大廳',n_profile:'👤 個人檔案',n_rules:'📖 規範',
+live:'清華校園即時連線',live_n:'目前有 {n} 位同學正在讀書',hero1:'一起專注',hero2:'在圖書館',
+hero_p:'別再一個人滑手機。找個讀書夥伴坐在一起，輸入代碼簽到，專注 50 分鐘，然後一起休息。',
+b_quick:'⚡ 快速配對',b_lobby:'📋 瀏覽讀書大廳',
+s_streak:'連續讀書天數',s_title:'目前稱號',s_rating:'同儕評分',s_freeze:'🧊 每週 1 次連續紀錄凍結卡',days:'天',hrs:'累積專注 {h} 小時',s_badges:'🤫 安靜 · ⚡ 專注',
+how_t:'使用方式',h1t:'選擇模式',h1d:'嚴格讀書 (50/10) 或 讀書＋社交 (50/15)，可加上篩選條件。',h2t:'並肩簽到',h2d:'坐在一起並交換代碼。輸入夥伴的代碼後才開始計時。',h3t:'專注，然後休息',h3d:'安靜專注 50 分鐘，之後一起休息或聊天。',
+l_title:'📋 讀書大廳',l_desc:'尋找清大圖書館的讀書夥伴',l_post:'➕ 發起揪團',
+f_mall:'所有模式',f_gall:'性別不限',f_gsame:'同性別',f_gopp:'異性別',f_lall:'所有圖書館',
+m_strict:'嚴格讀書 (50/10)',m_social:'讀書＋社交 (50/15)',loc_main:'總圖書館',loc_nanda:'南大校區圖書館',
+l_join:'配對並一起坐',l_empty:'沒有符合條件的揪團，自己發起一個吧！',l_mine:'你的揪團',
+su_t:'⚡ 快速配對',su_find:'尋找夥伴',cancel:'取消',po_t:'發起讀書揪團',po_topic:'你在讀什麼？',po_go:'發佈',
+qr_t:'📲 並肩簽到',qr_d:'把你的代碼給夥伴看，並輸入對方的代碼。確認後開始計時。',qr_your:'你的代碼',qr_enter:'夥伴的 6 位數代碼',qr_ok:'開始讀書',qr_sim:'⚡ (測試) 自動填入夥伴代碼',qr_bad:'代碼錯誤，請確認夥伴的螢幕。',
+ph_focus:'⚡ 專注時間',ph_break:'☕ 休息時間',ph_pass:'🚻 暫離洗手間',round:'第',pass_left:'剩餘暫離次數：{n}',b_pass:'🚻 暫離洗手間 (10 分鐘)',b_back:'我回來了',
+pass_on:'計時已暫停，夥伴會看到你正在休息 10 分鐘。',b_end:'🛑 結束讀書',demo:'展示加速 ×60',
+chat_t:'💬 休息聊天室',chat_ph:'輸入訊息…',send:'送出',chat_off:'安靜休息 💧 伸展一下、喝點水、讓眼睛休息。',
+ice0:'你今天主要在準備哪一科的作業？',ice1:'作業完成幾成了？',ice2:'有推薦的咖啡廳或手搖飲嗎？',
+rp0:'哈哈我也是！',rp1:'太棒了，繼續加油 💪',rp2:'再來一輪？',
+t_break:'休息時間 ☕',t_focus:'回到專注 ⚡',t_done:'已記錄本次讀書 🎉',t_short:'不到 1 分鐘，本次不列入計算。',t_report:'已匿名檢舉 🛡',t_freeze:'🧊 已使用凍結卡',t_posted:'揪團已發佈 ✅',
+r_t:'⭐ 讀書結束',r_d:'為你的夥伴評分',r_quiet:'🤫 安靜',r_focus:'⚡ 專注',r_friend:'🤝 友善',r_go:'送出',r_rep:'🛡 匿名檢舉',
+p_name:'清大同學 (訪客)',p_av:'選擇頭像',p_bg:'🎖 稱號與勳章',you:'你',
+av1:'科技程式',av2:'運動悠閒',av3:'經典學霸',av4:'手搖飲愛好者',av5:'創意設計',av6:'專注達人',
+bg1:'第一次讀書',bg2:'連續 3 天',bg3:'夜貓子',bg4:'清大圖書館之王',bg5:'0.01% 專注大師',
+ti0:'新手',ti1:'圖書館常客',ti2:'清大圖書館之王',ti3:'0.01% 專注大師',
+ru_t:'📖 校園社群規範',
+ru1:'<b>圖書館保持安靜：</b>50 分鐘專注期間請勿交談。',
+ru2:'<b>並肩簽到：</b>雙方輸入彼此的代碼後才開始計時。',
+ru3:'<b>休息聊天：</b>僅限「讀書＋社交」模式的 15 分鐘休息時間。',
+ru4:'<b>暫離洗手間：</b>每次最多 2 次，每次 10 分鐘，計時會暫停。',
+ru5:'<b>匿名檢舉：</b>讀書結束後可檢舉干擾行為，對方不會收到通知。'}
+};
 
-                <div class="p-5 rounded-2xl bg-white dark:bg-darkcard border border-gray-200 dark:border-darkborder flex items-center space-x-4">
-                    <div class="w-12 h-12 rounded-xl bg-yellow-500/10 text-yellow-500 flex items-center justify-center text-2xl font-bold">⭐</div>
-                    <div>
-                        <span class="text-xs text-gray-500 font-medium block" data-i18n="stat_rating_label">Peer Rating</span>
-                        <span class="text-2xl font-extrabold font-mono text-gray-800 dark:text-white">4.9 / 5.0</span>
-                        <span class="text-[10px] text-purple-400 block" data-i18n="stat_rating_sub">🤫 Quiet • ⚡ Focused</span>
-                    </div>
-                </div>
-            </div>
-        </section>
+/* ---------- STATE ---------- */
+const $=id=>document.getElementById(id);
+const t=k=>(T[S.lang]&&T[S.lang][k])||T.en[k]||k;
+const esc=s=>s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let S={lang:'en',theme:'dark',av:0,min:0,ses:0,streak:0,last:0,frz:-1,owl:0};
+try{Object.assign(S,JSON.parse(localStorage.getItem('nthu_sb')||'{}'))}catch(e){}
+const save=()=>{try{localStorage.setItem('nthu_sb',JSON.stringify(S))}catch(e){}};
+const MODE={strict:{f:50,b:10},social:{f:50,b:15}};
+const AV=[
+ {id:'TechCoder',f:'tech',g:'m',k:'av1'},{id:'SportyChill',f:'sporty',g:'m',k:'av2'},{id:'ClassicScholar',f:'scholar',g:'m',k:'av3'},
+ {id:'BobaLover',f:'boba',g:'f',k:'av4'},{id:'CreativeDesign',f:'creative',g:'f',k:'av5'},{id:'FocusAchiever',f:'focus',g:'f',k:'av6'}];
+const img=(a,c)=>`<img class="${c||''}" alt="" src="images/avatar-${a.f}.png" onerror="this.onerror=null;this.src='https://api.dicebear.com/7.x/bottts/svg?seed=${a.id}'">`;
+let uid=4,ses=null,pending=null,rate=5,live=34;
+const lobby=[
+ {id:1,n:'Emily Lin',d:'EE',m:'social',l:'main',a:3,topic:'Signals & Systems HW'},
+ {id:2,n:'Kevin Wang',d:'CS',m:'strict',l:'main',a:0,topic:'Algorithms midterm'},
+ {id:3,n:'Chen Yu',d:'Physics',m:'social',l:'nanda',a:4,topic:'Quantum mechanics'}];
 
-        <!-- ==================== LOBBY VIEW ==================== -->
-        <section id="view-lobby" class="hidden space-y-6">
-            <div class="p-6 rounded-2xl bg-white dark:bg-darkcard border border-gray-200 dark:border-darkborder space-y-4">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <div>
-                        <h2 class="text-xl font-bold" data-i18n="lobby_title">📋 Study Lobby & Open Sessions</h2>
-                        <p class="text-xs text-gray-500" data-i18n="lobby_desc">Find a study partner sitting nearby in NTHU libraries</p>
-                    </div>
-                    <button onclick="alert('Create Post Feature')" class="px-4 py-2.5 rounded-xl bg-nthu-600 text-white text-sm font-bold shadow-md hover:bg-nthu-700 transition flex items-center gap-2" data-i18n="btn_post_session">
-                        <i class="fa-solid fa-plus"></i> Post Study Session
-                    </button>
-                </div>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="lobby-grid"></div>
-        </section>
+/* ---------- NAV / THEME / LANG ---------- */
+function show(v){
+ ['home','lobby','session','profile','rules'].forEach(x=>$('v-'+x).classList.toggle('hidden',x!=v));
+ document.querySelectorAll('.nav').forEach(b=>b.classList.toggle('on',b.dataset.v==v));
+ scrollTo(0,0);
+}
+function applyTheme(){document.documentElement.classList.toggle('dark',S.theme=='dark');$('th').textContent=S.theme=='dark'?'🌙':'☀️'}
+function toggleTheme(){S.theme=S.theme=='dark'?'light':'dark';save();applyTheme()}
+function applyLang(){
+ document.documentElement.lang=S.lang=='zh'?'zh-Hant':'en';
+ document.querySelectorAll('[data-i]').forEach(e=>e.textContent=t(e.dataset.i));
+ document.querySelectorAll('[data-h]').forEach(e=>e.innerHTML=t(e.dataset.h));
+ document.querySelectorAll('[data-p]').forEach(e=>e.placeholder=t(e.dataset.p));
+ $('lg').textContent=S.lang=='en'?'🌐 EN / 繁中':'🌐 繁中 / EN';
+ renderLobby();renderProfile();renderStats();renderSes();showLive();
+}
+function toggleLang(){S.lang=S.lang=='en'?'zh':'en';save();applyLang()}
+function toast(m){const d=document.createElement('div');d.className='card !py-3 text-sm text-center shadow-lg border-nthu-500/40';d.textContent=m;$('toasts').append(d);setTimeout(()=>d.remove(),3500)}
+const openModal=id=>$(id).classList.remove('hidden'),closeModal=id=>$(id).classList.add('hidden');
+function showLive(){$('live').textContent=t('live_n').replace('{n}',live)}
+setInterval(()=>{live=Math.max(28,Math.min(45,live+Math.floor(Math.random()*3)-1));showLive()},5000);
 
-        <!-- ==================== SESSION & TIMER VIEW ==================== -->
-        <section id="view-session" class="hidden space-y-6">
-            <div class="max-w-2xl mx-auto p-8 rounded-3xl bg-white dark:bg-darkcard border border-nthu-500/30 text-center space-y-6 shadow-2xl relative">
-                <div class="flex items-center justify-center space-x-4">
-                    <div class="w-14 h-14 rounded-full border-2 border-nthu-500 overflow-hidden bg-nthu-500/10">
-                        <img id="session-buddy-avatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=BobaLover" class="w-full h-full object-cover">
-                    </div>
-                    <div class="text-left">
-                        <h3 id="session-buddy-name" class="font-bold text-lg">Alex Chen (CS)</h3>
-                        <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-purple-500/20 text-purple-400 font-semibold">
-                            Study & Social (50/15)
-                        </span>
-                    </div>
-                </div>
+/* ---------- LOBBY ---------- */
+function renderLobby(){
+ const fm=$('f-mode').value,fg=$('f-gender').value,fl=$('f-loc').value,me=AV[S.av].g;
+ const list=lobby.filter(x=>(fm=='all'||x.m==fm)&&(fl=='all'||x.l==fl)&&(fg=='all'||(fg=='same')==(AV[x.a].g==me)));
+ $('lobby').innerHTML=list.length?list.map(x=>`
+ <div class="card space-y-3">
+  <div class="flex items-center gap-3">
+   <div class="w-11 h-11 rounded-full overflow-hidden border-2 border-nthu-500">${img(AV[x.a],'w-full h-full')}</div>
+   <div><b class="text-sm">${x.me?t('you'):x.n}</b><div class="text-xs text-gray-400">${x.d} · ${t('loc_'+x.l)}</div></div>
+  </div>
+  <div class="text-xs">📌 ${t('m_'+x.m)}</div>
+  <div class="text-xs text-gray-400">📖 ${esc(x.topic)}</div>
+  ${x.me?`<div class="text-xs text-nthu-500">${t('l_mine')}</div>`:`<button class="btn-p w-full" onclick="join(${x.id})">🤝 ${t('l_join')}</button>`}
+ </div>`).join(''):`<p class="text-sm text-gray-400 col-span-full">${t('l_empty')}</p>`;
+}
+function submitPost(){
+ lobby.unshift({id:++uid,me:1,d:'Guest',m:$('po-mode').value,l:$('po-loc').value,a:S.av,topic:$('po-topic').value.trim()||'—'});
+ $('po-topic').value='';closeModal('m-post');renderLobby();toast(t('t_posted'));show('lobby');
+}
 
-                <div class="py-6">
-                    <span id="timer-display" class="font-mono text-6xl sm:text-7xl font-extrabold tracking-wider bg-gradient-to-r from-nthu-500 to-purple-400 bg-clip-text text-transparent">
-                        50:00
-                    </span>
-                    <span id="timer-status-text" class="block text-xs text-gray-400 font-mono mt-2" data-i18n="timer_focus_text">
-                        ⚡ Focus Time (50 mins)
-                    </span>
-                </div>
+/* ---------- MATCH + QR CHECK-IN ---------- */
+function openSetup(){openModal('m-setup')}
+function findMatch(){
+ const m=$('su-mode').value,g=$('su-gender').value,me=AV[S.av].g;
+ let pool=lobby.filter(x=>!x.me&&x.m==m&&(g=='all'||(g=='same')==(AV[x.a].g==me)));
+ if(!pool.length)pool=lobby.filter(x=>!x.me);
+ closeModal('m-setup');openQR(pool[Math.floor(Math.random()*pool.length)],m);
+}
+function join(id){openQR(lobby.find(x=>x.id==id),lobby.find(x=>x.id==id).m)}
+const rnd6=()=>String(Math.floor(100000+Math.random()*900000));
+function openQR(b,mode){
+ pending={b,mode,my:rnd6(),their:rnd6()};
+ $('qr-img').style.visibility='visible';
+ $('qr-img').src='https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=NTHUSB-'+pending.my;
+ $('qr-my').textContent=pending.my;$('qr-in').value='';openModal('m-qr');
+}
+function simQR(){$('qr-in').value=pending.their;confirmQR()}
+function confirmQR(){
+ if($('qr-in').value.trim()!==pending.their)return toast(t('qr_bad'));
+ closeModal('m-qr');
+ const m=MODE[pending.mode];
+ ses={b:pending.b,mode:pending.mode,ph:'focus',left:m.f*60,round:1,passes:2,pl:0,min:0,sp:$('sp').checked?60:1,end:0};
+ $('chat-log').innerHTML='';show('session');renderSes();
+}
 
-                <div class="flex flex-wrap justify-center gap-3">
-                    <button onclick="alert('🚻 Bathroom pass activated! 10 min break notified.')" class="px-4 py-2.5 rounded-xl bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 text-xs font-bold border border-blue-500/30" data-i18n="btn_bathroom">
-                        🚻 Bathroom Pass (10m)
-                    </button>
-                    <button onclick="simBreakMode()" class="px-4 py-2.5 rounded-xl bg-green-500/10 text-green-500 hover:bg-green-500/20 text-xs font-bold border border-green-500/30" data-i18n="btn_break">
-                        ☕ Start Break (Chat)
-                    </button>
-                    <button onclick="endSession()" class="px-4 py-2.5 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500/20 text-xs font-bold border border-red-500/30" data-i18n="btn_end">
-                        🛑 End Session
-                    </button>
-                </div>
+/* ---------- SESSION ---------- */
+const fmt=s=>{s=Math.max(0,Math.ceil(s));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
+function renderSes(){
+ if(!ses)return;
+ const m=MODE[ses.mode],tot=ses.ph=='focus'?m.f*60:ses.ph=='break'?m.b*60:600,left=ses.ph=='pass'?ses.pl:ses.left;
+ $('tm').textContent=fmt(left);$('tm-ph').textContent=t('ph_'+ses.ph);
+ $('bar').style.width=Math.min(100,100-left/tot*100)+'%';
+ $('s-av').innerHTML=img(AV[ses.b.a],'w-full h-full');$('s-name').textContent=ses.b.n;$('s-mode').textContent=t('m_'+ses.mode);
+ $('s-round').textContent=S.lang=='zh'?t('round')+' '+ses.round+' 輪':t('round')+' '+ses.round;
+ $('s-passes').textContent=t('pass_left').replace('{n}',ses.passes);
+ $('pass-on').classList.toggle('hidden',ses.ph!='pass');
+ $('b-pass').disabled=ses.ph!='focus'||ses.passes<1;
+ const br=ses.ph=='break',soc=ses.mode=='social';
+ $('chat').classList.toggle('hidden',!br);$('chat-on').classList.toggle('hidden',!soc);$('chat-off').classList.toggle('hidden',soc);
+ $('ice').textContent='💡 '+t('ice'+(ses.round%3));
+}
+setInterval(()=>{
+ if(!ses||ses.end)return;
+ const sp=ses.sp,m=MODE[ses.mode];
+ if(ses.ph=='pass'){ses.pl-=sp;if(ses.pl<=0)ses.ph='focus'}
+ else{
+  ses.left-=sp;if(ses.ph=='focus')ses.min+=sp/60;
+  if(ses.left<=0){
+   if(ses.ph=='focus'){ses.ph='break';ses.left=m.b*60;toast(t('t_break'))}
+   else{ses.ph='focus';ses.round++;ses.left=m.f*60;toast(t('t_focus'))}
+  }
+ }
+ renderSes();
+},1000);
+function usePass(){if(ses.ph!='focus'||ses.passes<1)return;ses.passes--;ses.ph='pass';ses.pl=600;renderSes()}
+function backFromPass(){ses.ph='focus';renderSes()}
+function bubble(me,txt){
+ const d=document.createElement('div');
+ d.className='max-w-[80%] px-3 py-1.5 rounded-xl text-sm '+(me?'self-end bg-nthu-600 text-white':'self-start bg-gray-200 dark:bg-line');
+ d.textContent=txt;$('chat-log').append(d);$('chat-log').scrollTop=1e9;
+}
+function say(x){bubble(1,x);setTimeout(()=>ses&&bubble(0,t('rp'+Math.floor(Math.random()*3))),1200)}
+function sendChat(){const v=$('chat-in').value.trim();if(!v)return;$('chat-in').value='';say(v)}
 
-                <!-- Break Chat Box -->
-                <div id="break-chat-box" class="hidden text-left border-t border-gray-200 dark:border-darkborder pt-6 space-y-4">
-                    <h4 class="font-bold text-sm" data-i18n="chat_title">💬 15-Min Break Chat (Active)</h4>
-                    <div class="p-3 rounded-xl bg-nthu-500/10 border border-nthu-500/20 text-xs text-nthu-300" data-i18n="chat_icebreaker">
-                        💡 <b>Icebreaker:</b> "What course assignment are you focusing on today?"
-                    </div>
-                    <div id="chat-messages" class="h-32 overflow-y-auto p-3 rounded-xl bg-gray-50 dark:bg-darkbg space-y-2 text-xs">
-                        <div class="bg-gray-200 dark:bg-darkborder p-2 rounded-lg max-w-[80%]">
-                            <b>Alex:</b> Hey! Nice 50 min session. How is your study going?
-                        </div>
-                    </div>
-                    <div class="flex gap-2">
-                        <input type="text" id="chat-input" placeholder="Type a message..." class="flex-grow p-2.5 text-xs rounded-xl bg-gray-100 dark:bg-darkbg border border-gray-200 dark:border-darkborder outline-none">
-                        <button onclick="sendChatMessage()" class="px-4 py-2.5 rounded-xl bg-nthu-600 text-white font-bold text-xs" data-i18n="btn_send">Send</button>
-                    </div>
-                </div>
-            </div>
-        </section>
+/* ---------- END + RATING ---------- */
+function paintStars(){$('stars').innerHTML=[1,2,3,4,5].map(i=>`<button class="text-4xl ${i<=rate?'text-yellow-400':'text-gray-500'}" onclick="rate=${i};paintStars()">★</button>`).join('')}
+function endSession(){
+ ses.end=1;rate=5;paintStars();
+ document.querySelectorAll('#m-rate .chip').forEach(c=>c.classList.remove('on'));openModal('m-rate');
+}
+function dayNum(){return Math.floor((Date.now()-new Date().getTimezoneOffset()*6e4)/864e5)}
+function updateStreak(){
+ const d=dayNum(),w=Math.floor(d/7),diff=d-S.last;
+ if(S.last===d)return;
+ if(S.last&&diff==1)S.streak++;
+ else if(S.last&&diff==2&&S.frz!=w){S.streak++;S.frz=w;toast(t('t_freeze'))}
+ else S.streak=1;
+ S.last=d;
+}
+function finish(report){
+ closeModal('m-rate');
+ if(report)toast(t('t_report'));
+ if(ses.min>=1){S.min+=ses.min;S.ses++;updateStreak();const h=new Date().getHours();if(h>=22||h<5)S.owl=1;toast(t('t_done'))}
+ else toast(t('t_short'));
+ save();ses=null;renderStats();renderProfile();show('home');
+}
 
-        <!-- ==================== PROFILE VIEW ==================== -->
-        <section id="view-profile" class="hidden space-y-6">
-            <div class="p-6 sm:p-8 rounded-3xl bg-white dark:bg-darkcard border border-gray-200 dark:border-darkborder space-y-8">
-                <div class="flex items-center space-x-4">
-                    <div class="w-20 h-20 rounded-full border-2 border-nthu-500 overflow-hidden bg-nthu-500/10">
-                        <img id="profile-avatar-main" src="https://api.dicebear.com/7.x/bottts/svg?seed=TechCoder" class="w-full h-full object-cover">
-                    </div>
-                    <div>
-                        <h2 class="text-2xl font-bold">NTHU Student (Guest)</h2>
-                        <span class="text-xs font-mono text-gray-400">@gapp.nthu.edu.tw verified</span>
-                    </div>
-                </div>
+/* ---------- STATS + PROFILE ---------- */
+const title=()=>S.min>=3000?'ti3':S.min>=600?'ti2':S.min>=60?'ti1':'ti0';
+const BG=[['🌱','bg1',()=>S.ses>=1],['⚡','bg2',()=>S.streak>=3],['🦉','bg3',()=>S.owl],['📚','bg4',()=>S.min>=600],['🔥','bg5',()=>S.min>=3000]];
+function renderStats(){
+ $('st-streak').textContent=S.streak+' '+t('days');
+ $('st-title').textContent=t(title());
+ $('st-hours').textContent=t('hrs').replace('{h}',(S.min/60).toFixed(1));
+ $('p-title').textContent=t(title());
+}
+function renderHdr(){$('hd-av').innerHTML=img(AV[S.av],'w-full h-full');$('p-av').innerHTML=img(AV[S.av],'w-full h-full')}
+function pick(i){S.av=i;save();renderHdr();renderProfile();renderLobby()}
+function renderProfile(){
+ $('avs').innerHTML=AV.map((a,i)=>`<button onclick="pick(${i})" class="p-2 rounded-2xl border-2 ${i==S.av?'border-nthu-500 bg-nthu-500/10':'border-transparent'}"><div class="w-full aspect-square rounded-full overflow-hidden">${img(a,'w-full h-full')}</div><div class="text-[11px] font-semibold mt-1">${t(a.k)}</div></button>`).join('');
+ $('bgs').innerHTML=BG.map(b=>`<div class="p-3 rounded-xl border border-gray-200 dark:border-line text-center ${b[2]()?'':'opacity-30 grayscale'}"><div class="text-3xl">${b[0]}</div><div class="text-xs font-bold mt-1">${t(b[1])}</div></div>`).join('');
+}
 
-                <div class="space-y-3">
-                    <h3 class="font-bold text-sm" data-i18n="avatar_select_title">Choose Preset Avatar</h3>
-                    <div class="grid grid-cols-3 sm:grid-cols-6 gap-3">
-                        <div onclick="selectAvatar('TechCoder')" class="p-2 rounded-2xl border-2 border-nthu-500 bg-nthu-500/10 cursor-pointer text-center">
-                            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=TechCoder" class="w-10 h-10 mx-auto">
-                            <span class="block text-[10px] font-bold mt-1">Tech & Code</span>
-                        </div>
-                        <div onclick="selectAvatar('SportyChill')" class="p-2 rounded-2xl border border-gray-200 dark:border-darkborder hover:border-nthu-500 cursor-pointer text-center">
-                            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=SportyChill" class="w-10 h-10 mx-auto">
-                            <span class="block text-[10px] font-bold mt-1">Sporty</span>
-                        </div>
-                        <div onclick="selectAvatar('ClassicScholar')" class="p-2 rounded-2xl border border-gray-200 dark:border-darkborder hover:border-nthu-500 cursor-pointer text-center">
-                            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=ClassicScholar" class="w-10 h-10 mx-auto">
-                            <span class="block text-[10px] font-bold mt-1">Scholar</span>
-                        </div>
-                        <div onclick="selectAvatar('BobaLover')" class="p-2 rounded-2xl border border-gray-200 dark:border-darkborder hover:border-nthu-500 cursor-pointer text-center">
-                            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=BobaLover" class="w-10 h-10 mx-auto">
-                            <span class="block text-[10px] font-bold mt-1">Boba Lover</span>
-                        </div>
-                        <div onclick="selectAvatar('CreativeDesign')" class="p-2 rounded-2xl border border-gray-200 dark:border-darkborder hover:border-nthu-500 cursor-pointer text-center">
-                            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=CreativeDesign" class="w-10 h-10 mx-auto">
-                            <span class="block text-[10px] font-bold mt-1">Creative</span>
-                        </div>
-                        <div onclick="selectAvatar('FocusAchiever')" class="p-2 rounded-2xl border border-gray-200 dark:border-darkborder hover:border-nthu-500 cursor-pointer text-center">
-                            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=FocusAchiever" class="w-10 h-10 mx-auto">
-                            <span class="block text-[10px] font-bold mt-1">Focus Girl</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ==================== RULES VIEW ==================== -->
-        <section id="view-rules" class="hidden space-y-6">
-            <div class="p-8 rounded-3xl bg-white dark:bg-darkcard border border-gray-200 dark:border-darkborder space-y-4">
-                <h2 class="text-2xl font-bold" data-i18n="rules_title">📖 NTHU StudyBuddy Culture & Rules</h2>
-                <ul class="list-disc list-inside space-y-2 text-sm text-gray-400">
-                    <li data-i18n="rule_1"><b>Library Quiet Policy:</b> Stay quiet during 50 min focus time.</li>
-                    <li data-i18n="rule_2"><b>Side-by-side Check-in:</b> Scan QR code with partner to start timer.</li>
-                    <li data-i18n="rule_3"><b>Break Chat:</b> Use built-in chat only during 10/15 min break.</li>
-                    <li data-i18n="rule_4"><b>Silent Report:</b> Discreetly report distracting behavior after session.</li>
-                </ul>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- MODALS -->
-    <div id="qr-modal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-darkcard border border-nthu-500/30 p-8 rounded-3xl max-w-sm w-full text-center space-y-6 glow-purple">
-            <h3 class="text-lg font-bold" data-i18n="qr_modal_title">📲 Scan QR Code to Start</h3>
-            <p class="text-xs text-gray-400" data-i18n="qr_modal_desc">Scan the QR code on your study buddy's screen to begin.</p>
-            <div class="w-44 h-44 mx-auto bg-white p-3 rounded-2xl flex items-center justify-center border-4 border-nthu-500">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=NTHUStudyBuddy" class="w-full h-full">
-            </div>
-            <button onclick="simCompleteMatch()" class="w-full py-3 rounded-xl bg-nthu-600 text-white font-bold text-xs" data-i18n="btn_sim_qr">
-                ⚡ (Test) Simulate QR Scan
-            </button>
-        </div>
-    </div>
-
-    <!-- JS DICTIONARIES & LOGIC -->
-    <script>
-        // Dictionary for English (en) and Traditional Chinese (zh)
-        const i18n = {
-            en: {
-                nav_home: "🏠 Home",
-                nav_lobby: "📋 Study Lobby",
-                nav_profile: "👤 Profile & Badges",
-                nav_rules: "📖 Rules",
-                hero_live_tag: "LIVE NTHU CAMPUS",
-                hero_title: 'Focus Together at <span class="bg-gradient-to-r from-purple-300 to-nthu-500 bg-clip-text text-transparent">NTHU Library</span> 📚',
-                hero_subtitle: "Stop scrolling alone on your phone. Pair up with a study buddy, scan QR code, and boost your productivity with 50/10 or 50/15 Pomodoro sessions!",
-                btn_quick_match: '<i class="fa-solid fa-bolt text-yellow-300"></i> Start Quick Match',
-                btn_browse_lobby: '<i class="fa-solid fa-list-ul"></i> Browse Study Lobby',
-                stat_streak_label: "Current Streak",
-                stat_streak_sub: "🧊 Streak Freeze Active",
-                stat_title_label: "Current Title",
-                stat_title_sub: "42 hrs focused total",
-                stat_rating_label: "Peer Rating",
-                stat_rating_sub: "🤫 Quiet • ⚡ Focused",
-                lobby_title: "📋 Study Lobby & Open Sessions",
-                lobby_desc: "Find a study partner sitting nearby in NTHU libraries",
-                btn_post_session: '<i class="fa-solid fa-plus"></i> Post Study Session',
-                timer_focus_text: "⚡ Focus Time (50 mins)",
-                btn_bathroom: "🚻 Bathroom Pass (10m)",
-                btn_break: "☕ Start Break (Chat)",
-                btn_end: "🛑 End Session",
-                chat_title: "💬 15-Min Break Chat (Active)",
-                chat_icebreaker: '💡 <b>Icebreaker:</b> "What course assignment are you focusing on today?"',
-                btn_send: "Send",
-                avatar_select_title: "Choose Preset Avatar",
-                rules_title: "📖 NTHU StudyBuddy Culture & Rules",
-                rule_1: "<b>Library Quiet Policy:</b> Stay quiet during 50 min focus time.",
-                rule_2: "<b>Side-by-side Check-in:</b> Scan QR code with partner to start timer.",
-                rule_3: "<b>Break Chat:</b> Use built-in chat only during 10/15 min break.",
-                rule_4: "<b>Silent Report:</b> Discreetly report distracting behavior after session.",
-                qr_modal_title: "📲 Scan QR Code to Start",
-                qr_modal_desc: "Scan the QR code on your study buddy's screen to begin.",
-                btn_sim_qr: "⚡ (Test) Simulate QR Scan"
-            },
-            zh: {
-                nav_home: "🏠 首頁",
-                nav_lobby: "📋 讀書大廳",
-                nav_profile: "👤 個人檔案與勳章",
-                nav_rules: "📖 規範說明",
-                hero_live_tag: "清華校園即時連線",
-                hero_title: '在 <span class="bg-gradient-to-r from-purple-300 to-nthu-500 bg-clip-text text-transparent">清大圖書館</span> 共同專注學習 📚',
-                hero_subtitle: "別再一個人滑手機浪費時間！與讀書夥伴結伴、掃描 QR Code，透過 50/10 或 50/15 番茄鐘大幅提升學習效率！",
-                btn_quick_match: '<i class="fa-solid fa-bolt text-yellow-300"></i> 快速配對',
-                btn_browse_lobby: '<i class="fa-solid fa-list-ul"></i> 瀏覽讀書大廳',
-                stat_streak_label: "連續讀書天數",
-                stat_streak_sub: "🧊 連續紀錄凍結卡生效中",
-                stat_title_label: "目前稱號",
-                stat_title_sub: "累積專注 42 小時",
-                stat_rating_label: "同儕評分",
-                stat_rating_sub: "🤫 安靜 • ⚡ 專注",
-                lobby_title: "📋 讀書大廳與揪團房間",
-                lobby_desc: "尋找目前在清大圖書館附近的讀書夥伴",
-                btn_post_session: '<i class="fa-solid fa-plus"></i> 發起讀書揪團',
-                timer_focus_text: "⚡ 深度專注時間 (50分鐘)",
-                btn_bathroom: "🚻 暫離洗手間 (10分鐘)",
-                btn_break: "☕ 開始休息 (開啟聊天)",
-                btn_end: "🛑 結束學習",
-                chat_title: "💬 15分鐘休息聊天室 (已開啟)",
-                chat_icebreaker: '💡 <b>破冰話題：</b>「你今天主要在準備哪一科的作業或考試？」',
-                btn_send: "發送",
-                avatar_select_title: "選擇預設頭像",
-                rules_title: "📖 清大 StudyBuddy 校園社群規範",
-                rule_1: "<b>圖書館保持安靜：</b> 50分鐘專注期間請勿交談。",
-                rule_2: "<b>面對面掃描簽到：</b> 必須與身旁夥伴掃描 QR Code 啟動計時器。",
-                rule_3: "<b>休息時間交流：</b> 僅在 10 或 15 分鐘休息時間使用內建聊天功能。",
-                rule_4: "<b>匿名檢舉機制：</b> 學習結束後可匿名檢舉干擾專注之行為。",
-                qr_modal_title: "📲 掃描 QR Code 開始學習",
-                qr_modal_desc: "請掃描身旁讀書夥伴螢幕上的 QR Code 以啟動計時器。",
-                btn_sim_qr: "⚡ (測試) 模擬掃描成功"
-            }
-        };
-
-        let currentLang = 'en';
-
-        function toggleLanguage() {
-            currentLang = currentLang === 'en' ? 'zh' : 'en';
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (i18n[currentLang][key]) {
-                    el.innerHTML = i18n[currentLang][key];
-                }
-            });
-            updateLiveCountText();
-        }
-
-        // Live Dynamic Count Simulation
-        let activeCount = 34;
-        function updateLiveCountText() {
-            const countEl = document.getElementById('live-count-text');
-            if(currentLang === 'en') {
-                countEl.innerText = `${activeCount} Students Studying Now`;
-            } else {
-                countEl.innerText = `目前有 ${activeCount} 位同學正在學習`;
-            }
-        }
-
-        setInterval(() => {
-            const delta = Math.floor(Math.random() * 3) - 1; // -1, 0, +1
-            activeCount = Math.max(28, Math.min(45, activeCount + delta));
-            updateLiveCountText();
-        }, 6000);
-
-        // Dummy Lobby Data
-        const lobbyData = [
-            { id: 1, name: "Emily Lin", dept: "EE Dept", mode: "Study & Social (50/15)", loc: "Main Library 2F", rating: 4.9, avatar: "BobaLover" },
-            { id: 2, name: "Kevin Wang", dept: "CS Dept", mode: "Strict Study (50/10)", loc: "Main Library 3F", rating: 5.0, avatar: "TechCoder" },
-            { id: 3, name: "Chen Yu", dept: "Physics", mode: "Study & Social (50/15)", loc: "Nanda Library 1F", rating: 4.8, avatar: "SportyChill" },
-        ];
-
-        window.onload = function() {
-            renderLobby();
-            updateLiveCountText();
-        };
-
-        function switchTab(tabName) {
-            ['home', 'lobby', 'session', 'profile', 'rules'].forEach(tab => {
-                document.getElementById(`view-${tab}`).classList.add('hidden');
-            });
-            document.getElementById(`view-${tabName}`).classList.remove('hidden');
-        }
-
-        function renderLobby() {
-            const grid = document.getElementById('lobby-grid');
-            grid.innerHTML = lobbyData.map(item => `
-                <div class="p-5 rounded-2xl bg-white dark:bg-darkcard border border-gray-200 dark:border-darkborder space-y-4">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 rounded-full bg-nthu-500/10 border border-nthu-500 overflow-hidden">
-                                <img src="https://api.dicebear.com/7.x/bottts/svg?seed=${item.avatar}" class="w-full h-full object-cover">
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-sm">${item.name}</h4>
-                                <span class="text-[10px] text-gray-400 font-mono">${item.dept} • ⭐ ${item.rating}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <button onclick="startQuickMatch()" class="w-full py-2.5 rounded-xl bg-nthu-600/10 hover:bg-nthu-600 text-nthu-400 hover:text-white border border-nthu-500/30 font-bold text-xs">
-                        🤝 Match & Sit Together
-                    </button>
-                </div>
-            `).join('');
-        }
-
-        function startQuickMatch() {
-            document.getElementById('qr-modal').classList.remove('hidden');
-        }
-
-        function simCompleteMatch() {
-            document.getElementById('qr-modal').classList.add('hidden');
-            switchTab('session');
-        }
-
-        function simBreakMode() {
-            document.getElementById('break-chat-box').classList.remove('hidden');
-        }
-
-        function endSession() {
-            document.getElementById('break-chat-box').classList.add('hidden');
-            switchTab('home');
-        }
-
-        function sendChatMessage() {
-            const input = document.getElementById('chat-input');
-            const box = document.getElementById('chat-messages');
-            if(input.value.trim() !== '') {
-                box.innerHTML += `<div class="bg-nthu-600 text-white p-2 rounded-lg max-w-[80%] ml-auto text-right"><b>You:</b> ${input.value}</div>`;
-                input.value = '';
-                box.scrollTop = box.scrollHeight;
-            }
-        }
-
-        function selectAvatar(seed) {
-            document.getElementById('profile-avatar-main').src = `https://api.dicebear.com/7.x/bottts/svg?seed=${seed}`;
-            document.getElementById('header-avatar').src = `https://api.dicebear.com/7.x/bottts/svg?seed=${seed}`;
-        }
-
-        function toggleTheme() {
-            const html = document.documentElement;
-            const icon = document.getElementById('theme-icon');
-            if(html.classList.contains('dark')) {
-                html.classList.remove('dark');
-                icon.classList.replace('fa-moon', 'fa-sun');
-            } else {
-                html.classList.add('dark');
-                icon.classList.replace('fa-sun', 'fa-moon');
-            }
-        }
-    </script>
+/* ---------- INIT ---------- */
+(function(){const im=new Image();im.onload=()=>{$('logo').innerHTML='<img src="images/logo.png" class="w-full h-full object-cover" alt="">'};im.src='images/logo.png'})();
+applyTheme();renderHdr();applyLang();show('home');
+</script>
 </body>
 </html>
