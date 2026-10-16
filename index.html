@@ -179,7 +179,7 @@ body{font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC","PingFang TC"
  
  <!-- Camera QR Reader -->
  <div id="qr-reader" class="w-full mt-2 rounded-xl overflow-hidden hidden bg-black"></div>
- <button id="btn-scan-cam" class="btn-p w-full bg-blue-500 hover:bg-blue-600 !mt-4" onclick="startScanner()">📷 Камераар QR уншуулах</button>
+ <button id="btn-scan-cam" class="btn-p w-full bg-blue-500 hover:bg-blue-600 !mt-4" onclick="startScanner()" data-i="qr_cam"></button>
 
  <input id="qr-in" class="inp text-center tracking-widest mt-2" inputmode="numeric" maxlength="6" data-p="qr_enter" onkeydown="event.key=='Enter'&&confirmQR()">
  <button class="btn-p w-full bg-green-500 hover:bg-green-600" onclick="confirmQR()" data-i="qr_ok"></button>
@@ -255,7 +255,8 @@ ru1:'<b>Library quiet policy:</b> no talking during the 50 minute focus time.',
 ru2:'<b>Side-by-side check-in:</b> both of you enter each other’s code before the timer starts.',
 ru3:'<b>Break chat:</b> only in Study & Social mode, during the 15 minute break.',
 ru4:'<b>Bathroom pass:</b> max 2 per session, 10 minutes each. The timer pauses.',
-ru5:'<b>Silent report:</b> report distracting behavior after a session. Your buddy is not notified.'},
+ru5:'<b>Silent report:</b> report distracting behavior after a session. Your buddy is not notified.',
+qr_cam:'📷 Scan QR with Camera'},
 zh:{n_home:'🏠 首頁',n_lobby:'📋 讀書大廳',n_profile:'👤 個人檔案',n_rules:'📖 規範',
 live:'清華校園即時連線',live_n:'目前有 {n} 位同學正在讀書',hero1:'一起專注',hero2:'在圖書館',
 hero_p:'別再一個人滑手機。找個讀書夥伴坐在一起，輸入代碼簽到，專注 50 分鐘，然後一起休息。',
@@ -284,7 +285,8 @@ ru1:'<b>圖書館保持安靜：</b>50 分鐘專注期間請勿交談。',
 ru2:'<b>並肩簽到：</b>雙方輸入彼此的代碼後才開始計時。',
 ru3:'<b>休息聊天：</b>僅限「讀書＋社交」模式的 15 分鐘休息時間。',
 ru4:'<b>暫離洗手間：</b>每次最多 2 次，每次 10 分鐘，計時會暫停。',
-ru5:'<b>匿名檢舉：</b>讀書結束後可檢舉干擾行為，對方不會收到通知。'}
+ru5:'<b>匿名檢舉：</b>讀書結束後可檢舉干擾行為，對方不會收到通知。',
+qr_cam:'📷 使用相機掃描 QR'}
 };
 
 /* ---------- STATE ---------- */
@@ -356,7 +358,7 @@ function renderLobby(){
   </div>
   <div class="text-xs">📌 ${t('m_'+x.m)}</div>
   <div class="text-xs text-gray-400">📖 ${esc(x.topic)}</div>
-  ${x.me?`<div class="text-xs text-nthu-500">${t('l_mine')}</div>`:`<button class="btn-p w-full" onclick="join('${x.fbKey}')">🤝 ${t('l_join')}</button>`}
+  ${x.me ? `<button class="btn-p !bg-nthu-600 w-full" onclick="join('${x.fbKey}')">📲 ${t('qr_t')}</button>` : `<button class="btn-p w-full" onclick="join('${x.fbKey}')">🤝 ${t('l_join')}</button>`}
  </div>`).join(''):`<p class="text-sm text-gray-400 col-span-full">${t('l_empty')}</p>`;
 }
 function submitPost(){
