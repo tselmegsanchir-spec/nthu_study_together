@@ -45,6 +45,7 @@ body{font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC","PingFang TC"
    <button class="nav" data-v="rules" onclick="show('rules')" data-i="n_rules"></button>
   </nav>
   <div class="flex items-center gap-2">
+   <button id="help-btn" onclick="startTour()" aria-label="Help" class="btn-g !px-3">❓</button>
    <button id="auth-btn" onclick="authClick()" class="btn-g !px-3 text-xs"></button>
    <button id="th" onclick="toggleTheme()" class="btn-g !px-3"></button>
    <button id="lg" onclick="toggleLang()" class="btn-g !px-3 text-xs"></button>
@@ -58,11 +59,11 @@ body{font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC","PingFang TC"
 <!-- HOME -->
 <section id="v-home" class="space-y-6">
  <div class="rounded-3xl p-8 sm:p-12 bg-gradient-to-br from-nthu-700 via-purple-900 to-dk text-white">
-  <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-xs mb-4"><span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span><span data-i="live"></span><span>·</span><span id="live"></span></div>
+  <div id="tour-live" class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-xs mb-4"><span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span><span data-i="live"></span><span>·</span><span id="live"></span></div>
   <h1 class="text-4xl sm:text-6xl font-extrabold leading-tight"><span data-i="hero1"></span><br><span class="text-purple-300" data-i="hero2"></span></h1>
   <p class="mt-4 max-w-xl text-gray-300" data-i="hero_p"></p>
   <div class="mt-6 flex flex-wrap gap-3">
-   <button class="btn-p !bg-white !text-nthu-700" onclick="openSetup()" data-i="b_quick"></button>
+   <button id="tour-quick" class="btn-p !bg-white !text-nthu-700" onclick="openSetup()" data-i="b_quick"></button>
    <button class="btn-g !bg-white/10 !text-white" onclick="show('lobby')" data-i="b_lobby"></button>
   </div>
  </div>
@@ -86,9 +87,9 @@ body{font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC","PingFang TC"
  <div class="card space-y-4">
   <div class="flex flex-wrap justify-between items-center gap-3">
    <div><h2 class="text-xl font-bold" data-i="l_title"></h2><p class="text-xs text-gray-500" data-i="l_desc"></p></div>
-   <button class="btn-p" onclick="openModal('m-post')" data-i="l_post"></button>
+   <button id="tour-post" class="btn-p" onclick="openModal('m-post')" data-i="l_post"></button>
   </div>
-  <div class="grid sm:grid-cols-3 gap-3">
+  <div id="tour-filters" class="grid sm:grid-cols-3 gap-3">
    <select id="f-mode" class="inp" onchange="renderLobby()"><option value="all" data-i="f_mall"></option><option value="strict" data-i="m_strict"></option><option value="social" data-i="m_social"></option></select>
    <select id="f-gender" class="inp" onchange="renderLobby()"><option value="all" data-i="f_gall"></option><option value="same" data-i="f_gsame"></option><option value="opp" data-i="f_gopp"></option></select>
    <select id="f-loc" class="inp" onchange="renderLobby()"><option value="all" data-i="f_lall"></option><option value="main" data-i="loc_main"></option><option value="nanda" data-i="loc_nanda"></option></select>
@@ -209,6 +210,15 @@ body{font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC","PingFang TC"
 </div></div>
 
 <button id="back-ses" class="hidden fixed bottom-16 right-4 z-40 btn-p !rounded-full shadow-lg" onclick="show('session')"></button>
+<div id="tour" class="hidden fixed inset-0 z-[70]">
+ <div id="tour-hl" class="absolute rounded-xl pointer-events-none transition-all duration-200" style="box-shadow:0 0 0 9999px rgba(0,0,0,.72);outline:2px solid #8A2BE2"></div>
+ <div id="tour-box" class="absolute card shadow-2xl w-[min(92vw,22rem)] space-y-3 text-left border-nthu-500/50">
+  <div class="flex justify-between text-xs text-gray-400"><span id="tour-n"></span><button onclick="endTour()" data-i="tour_skip"></button></div>
+  <div id="tour-t" class="font-bold text-lg"></div>
+  <div id="tour-d" class="text-sm text-gray-600 dark:text-gray-300"></div>
+  <div class="flex justify-between gap-2"><button id="tour-prev" class="btn-g" onclick="tourGo(-1)" data-i="tour_back"></button><button id="tour-next" class="btn-p" onclick="tourGo(1)"></button></div>
+ </div>
+</div>
 <div id="toasts" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-[60] space-y-2 w-[90%] max-w-sm"></div>
 
 <script>
@@ -240,6 +250,19 @@ qr_t:'📲 Check in side by side',qr_d:'Chat below to find each other. When you 
 qr_host_d:'Chat below to find each other, then show this code or QR. The timer starts for both of you the moment your buddy joins.',qr_wait:'Waiting for your buddy…',qr_cam:'📷 Scan QR with camera',pass_buddy:'Timer paused. Your buddy is on a 10 min break.',room_taken:'This room was just taken. Try another one.',t_left:'Your buddy left the session.',t_gone:'The session has ended.',
 signin:'Sign in with Google',signout:'Sign out',nthu_only:'Please use your @gapp.nthu.edu.tw account.',guest_note:'Guest mode · sign in to keep your rating',back_ses:'Back to session',in_ses:'You are already in a session.',rat_n:'{n} ratings',no_rat:'No ratings yet',rc_t:'💬 Chat to find each other',rc_ph:'Where are you sitting?',rc_c1:'📍 I’m on the 2nd floor',rc_c2:'📍 Near the entrance',rc_c3:'🚶 On my way',joined:'Your buddy joined! 🎉',msg_from:'💬 {n}: {x}',left_note:'Your buddy has left. You can keep going solo or end the session.',
 cam_denied:'Camera permission was blocked. Allow the camera in your browser settings, or type the code instead.',cam_none:'No camera found. Type the code instead.',cam_fail:'Could not start the camera. Type the code instead.',
+tour_skip:'Skip',tour_back:'Back',tour_next:'Next',tour_done:'Got it',tour_step:'Step {a} of {b}',
+t1:'Welcome to NTHU StudyBuddy 👋|Study next to a real person and keep each other focused. This 30-second tour shows how it works.',
+t2:'Who is studying now|This live counter shows how many students are studying and how many are online right now.',
+t3:'Quick Match ⚡|The fastest way to start. Pick a mode and the app finds an open room for you.',
+t4:'Study Lobby|Open rooms from other students are listed here. You can also create your own.',
+t5:'Post your own room|Choose a mode, a library and a topic. You get a 6-digit code and a QR code to show your buddy.',
+t6:'Filters|Narrow the list by mode, gender preference and library.',
+t7:'Join a room|Press Match on a card. A small chat opens so you can say where you are sitting, for example “2nd floor, near the window”.',
+t8:'Check in together 📲|When you meet, the host shows the code or QR and the guest scans it or types the 6 digits. The same timer then starts on both phones.',
+t9:'Your profile|Choose an avatar, see your titles and badges, and track your streak.',
+t10:'Sign in or stay a guest|You can use everything as a guest. Sign in with your @gapp.nthu.edu.tw Google account to keep your rating on every device.',
+t11:'Language and theme|Switch between English and 繁體中文 here. The button next to it switches dark and light mode.',
+t12:'You are ready! 🎉|During a session you can use two bathroom passes. When you finish, rate your buddy. Tap ❓ at the top to see this tour again.',
 ph_focus:'⚡ Focus time',ph_break:'☕ Break time',ph_pass:'🚻 Bathroom pass',round:'Round',pass_left:'Passes left: {n}',b_pass:'🚻 Bathroom pass (10 min)',b_back:'I’m back',
 pass_on:'Timer paused. Your buddy sees you’re on a 10 min break.',b_end:'🛑 End session',demo:'Demo speed ×60',
 chat_t:'💬 Break chat',chat_ph:'Type a message…',send:'Send',chat_off:'Quiet break 💧 Stretch, drink water, rest your eyes.',
@@ -272,6 +295,19 @@ qr_t:'📲 並肩簽到',qr_d:'先在下方聊天找到彼此。碰面後，掃�
 qr_host_d:'先在下方聊天找到彼此，再出示這組代碼或 QR。夥伴加入的瞬間，兩人同時開始計時。',qr_wait:'等待夥伴加入…',qr_cam:'📷 使用相機掃描 QR',pass_buddy:'計時已暫停，夥伴正在休息 10 分鐘。',room_taken:'這個房間剛被別人加入了，請選別的。',t_left:'夥伴已離開。',t_gone:'本次讀書已結束。',
 signin:'使用 Google 登入',signout:'登出',nthu_only:'請使用 @gapp.nthu.edu.tw 帳號登入。',guest_note:'訪客模式 · 登入以保留你的評價',back_ses:'回到讀書',in_ses:'你已經在讀書中。',rat_n:'{n} 則評價',no_rat:'尚無評價',rc_t:'💬 聊天找到彼此',rc_ph:'你坐在哪裡？',rc_c1:'📍 我在二樓',rc_c2:'📍 在入口附近',rc_c3:'🚶 我正在過去',joined:'夥伴加入了！🎉',msg_from:'💬 {n}：{x}',left_note:'夥伴已離開。你可以繼續自己讀，或結束本次。',
 cam_denied:'相機權限被封鎖。請在瀏覽器設定中允許使用相機，或改為輸入代碼。',cam_none:'找不到相機，請改為輸入代碼。',cam_fail:'無法啟動相機，請改為輸入代碼。',
+tour_skip:'略過',tour_back:'上一步',tour_next:'下一步',tour_done:'知道了',tour_step:'第 {a} 步，共 {b} 步',
+t1:'歡迎使用 NTHU StudyBuddy 👋|和真人坐在一起，互相督促專注。這個 30 秒導覽會帶你了解使用方式。',
+t2:'誰正在讀書|這個即時計數會顯示目前有多少同學正在讀書，以及有多少人在線上。',
+t3:'快速配對 ⚡|最快的開始方式。選擇模式，系統會幫你找一個開放的房間。',
+t4:'讀書大廳|其他同學開放的房間都列在這裡，你也可以自己發起。',
+t5:'發起你的房間|選擇模式、圖書館和主題，你會得到一組 6 位數代碼和 QR Code，讓夥伴確認。',
+t6:'篩選條件|可依模式、性別偏好和圖書館縮小範圍。',
+t7:'加入房間|按下卡片上的「配對」，會開啟小聊天室，你可以告訴對方你坐在哪裡，例如「二樓靠窗」。',
+t8:'一起簽到 📲|碰面後，房主出示代碼或 QR，加入者掃描或輸入 6 位數。兩支手機會同時開始同一個計時。',
+t9:'你的個人檔案|選擇頭像、查看稱號與勳章，並追蹤連續天數。',
+t10:'登入或以訪客使用|訪客也能使用所有功能。使用 @gapp.nthu.edu.tw 的 Google 帳號登入，可在不同裝置保留你的評價。',
+t11:'語言與主題|在這裡切換英文與繁體中文，旁邊的按鈕可切換深色與淺色模式。',
+t12:'準備好了！🎉|讀書時每人有兩次暫離機會。結束後請為夥伴評分。點上方的 ❓ 可再次查看導覽。',
 ph_focus:'⚡ 專注時間',ph_break:'☕ 休息時間',ph_pass:'🚻 暫離洗手間',round:'第',pass_left:'剩餘暫離次數：{n}',b_pass:'🚻 暫離洗手間 (10 分鐘)',b_back:'我回來了',
 pass_on:'計時已暫停，夥伴會看到你正在休息 10 分鐘。',b_end:'🛑 結束讀書',demo:'展示加速 ×60',
 chat_t:'💬 休息聊天室',chat_ph:'輸入訊息…',send:'送出',chat_off:'安靜休息 💧 伸展一下、喝點水、讓眼睛休息。',
@@ -618,9 +654,48 @@ function renderProfile(){
  $('bgs').innerHTML=BG.map(b=>`<div class="p-3 rounded-xl border border-gray-200 dark:border-line text-center ${b[2]()?'':'opacity-30 grayscale'}"><div class="text-3xl">${b[0]}</div><div class="text-xs font-bold mt-1">${t(b[1])}</div></div>`).join('');
 }
 
+/* ---------- FIRST-TIME GUIDED TOUR ---------- */
+const TOUR=[
+ {k:'t1',v:'home'},{sel:'#tour-live',k:'t2',v:'home'},{sel:'#tour-quick',k:'t3',v:'home'},
+ {sel:'.nav[data-v=lobby]',k:'t4',v:'home'},{sel:'#tour-post',k:'t5',v:'lobby'},{sel:'#tour-filters',k:'t6',v:'lobby'},
+ {sel:'#lobby',k:'t7',v:'lobby'},{k:'t8',v:'lobby'},{sel:'.nav[data-v=profile]',k:'t9',v:'lobby'},
+ {sel:'#auth-btn',k:'t10'},{sel:'#lg',k:'t11'},{k:'t12',v:'home'}];
+let tourI=0,tourOn=false;
+function startTour(){if(ses){toast(t('in_ses'));return}tourOn=true;tourShow(0)}
+function endTour(){tourOn=false;$('tour').classList.add('hidden');try{localStorage.setItem('nthu_tour','1')}catch(e){}show('home')}
+function tourGo(d){const i=tourI+d;if(i<0)return;if(i>=TOUR.length)return endTour();tourShow(i)}
+function tourShow(i){
+ tourI=i;const st=TOUR[i],[ti,de]=t(st.k).split('|');
+ if(st.v)show(st.v);
+ $('tour-n').textContent=t('tour_step').replace('{a}',i+1).replace('{b}',TOUR.length);
+ $('tour-t').textContent=ti;$('tour-d').textContent=de;
+ $('tour-prev').classList.toggle('invisible',i==0);
+ $('tour-next').textContent=t(i==TOUR.length-1?'tour_done':'tour_next');
+ $('tour').classList.remove('hidden');
+ setTimeout(()=>{const el=st.sel&&document.querySelector(st.sel);if(el)el.scrollIntoView({block:'center'});tourPlace()},60);
+}
+function tourPlace(){
+ if(!tourOn)return;
+ const st=TOUR[tourI],el=st.sel&&document.querySelector(st.sel),hl=$('tour-hl'),bx=$('tour-box'),W=innerWidth,H=innerHeight;
+ const bw=bx.offsetWidth,bh=bx.offsetHeight;
+ if(el){
+  const r=el.getBoundingClientRect(),p=6;
+  hl.style.left=r.left-p+'px';hl.style.top=r.top-p+'px';hl.style.width=r.width+2*p+'px';hl.style.height=r.height+2*p+'px';
+  let top=r.bottom+p+12;
+  if(top+bh>H-8)top=r.top-p-12-bh;
+  if(top<8)top=H-bh-8;
+  bx.style.top=top+'px';bx.style.left=Math.min(Math.max(8,r.left),W-bw-8)+'px';
+ }else{
+  hl.style.left=W/2+'px';hl.style.top=H/2+'px';hl.style.width='0px';hl.style.height='0px';
+  bx.style.top=Math.max(8,(H-bh)/2)+'px';bx.style.left=(W-bw)/2+'px';
+ }
+}
+addEventListener('resize',tourPlace);addEventListener('scroll',tourPlace,true);
+
 /* ---------- INIT ---------- */
 (function(){const im=new Image();im.onload=()=>{$('logo').innerHTML='<img src="images/logo.png" class="w-full h-full object-cover" alt="">'};im.src='images/logo.png'})();
 applyTheme();renderHdr();applyLang();show('home');restoreSession();
+setTimeout(()=>{let seen=0;try{seen=localStorage.getItem('nthu_tour')}catch(e){}if(!seen&&!ses&&!sessionStorage.getItem('cur'))startTour()},900);
 </script>
 </body>
 </html>
