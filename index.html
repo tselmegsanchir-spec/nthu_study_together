@@ -9,7 +9,8 @@
 <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
-<script src="https://unpkg.com/html5-qrcode"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 .hidden{display:none!important}
 body{font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif}
@@ -172,13 +173,13 @@ body{font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC","PingFang TC"
  <h3 class="text-lg font-bold" data-i="qr_t"></h3>
  <div id="qr-host" class="space-y-3">
   <p class="text-xs text-gray-400" data-i="qr_host_d"></p>
-  <div class="w-36 h-36 mx-auto bg-white p-2 rounded-2xl"><img id="qr-img" class="w-full h-full" alt="" onerror="this.style.visibility='hidden'"></div>
+  <div id="qr-img" class="mx-auto bg-white p-3 rounded-2xl w-fit"></div>
   <div id="qr-my" class="text-4xl font-extrabold tracking-widest tabular-nums"></div>
   <div class="text-xs text-nthu-500 animate-pulse" data-i="qr_wait"></div>
  </div>
  <div id="qr-guest" class="hidden space-y-3">
   <p class="text-xs text-gray-400" data-i="qr_d"></p>
-  <div id="qr-reader" class="w-full rounded-xl overflow-hidden hidden bg-black"></div>
+  <div id="qr-reader" class="w-full rounded-xl overflow-hidden hidden bg-black" style="min-height:240px"></div>
   <button id="btn-scan-cam" class="btn-p w-full" onclick="startScanner()" data-i="qr_cam"></button>
   <input id="qr-in" class="inp text-center tracking-widest" inputmode="numeric" maxlength="6" data-p="qr_enter" onkeydown="event.key=='Enter'&&confirmQR()">
   <button class="btn-p w-full !bg-green-500 hover:!bg-green-600" onclick="confirmQR()" data-i="qr_ok"></button>
@@ -211,17 +212,14 @@ body{font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC","PingFang TC"
 <div id="toasts" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-[60] space-y-2 w-[90%] max-w-sm"></div>
 
 <script>
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyCMFpE1qG7svOwzlES7XLCzj9DNz9AAcuo",
-  authDomain: "nthu-studybuddy.firebaseapp.com",
-  databaseURL: "https://nthu-studybuddy-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "nthu-studybuddy",
-  storageBucket: "nthu-studybuddy.firebasestorage.app",
-  messagingSenderId: "500848090179",
-  appId: "1:500848090179:web:90ae4805d6b8448bf5c8f6",
-  measurementId: "G-PEYE4QSS49"
-};
+const firebaseConfig={
+  apiKey:"AIzaSyCMFpE1qG7svOwzLES7XLCzj9DNz9AAcuo",
+  authDomain:"nthu-studybuddy.firebaseapp.com",
+  databaseURL:"https://nthu-studybuddy-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:"nthu-studybuddy",
+  storageBucket:"nthu-studybuddy.firebasestorage.app",
+  messagingSenderId:"500848090179",
+  appId:"1:500848090179:web:90ae4805d6b8448bf5c8f6"};
 let db=null;
 try{firebase.initializeApp(firebaseConfig);db=firebase.database()}catch(e){console.error('Firebase error',e)}
 
@@ -241,6 +239,7 @@ su_t:'⚡ Quick Match',su_find:'Find a buddy',cancel:'Cancel',po_t:'Post a study
 qr_t:'📲 Check in side by side',qr_d:'Chat below to find each other. When you meet, scan your buddy’s QR or type the code on their screen.',qr_your:'Your code',qr_enter:'Buddy’s 6-digit code',qr_ok:'Start session',qr_sim:'⚡ (Test) Fill in buddy’s code',qr_bad:'Wrong code. Check your buddy’s screen.',
 qr_host_d:'Chat below to find each other, then show this code or QR. The timer starts for both of you the moment your buddy joins.',qr_wait:'Waiting for your buddy…',qr_cam:'📷 Scan QR with camera',pass_buddy:'Timer paused. Your buddy is on a 10 min break.',room_taken:'This room was just taken. Try another one.',t_left:'Your buddy left the session.',t_gone:'The session has ended.',
 signin:'Sign in with Google',signout:'Sign out',nthu_only:'Please use your @gapp.nthu.edu.tw account.',guest_note:'Guest mode · sign in to keep your rating',back_ses:'Back to session',in_ses:'You are already in a session.',rat_n:'{n} ratings',no_rat:'No ratings yet',rc_t:'💬 Chat to find each other',rc_ph:'Where are you sitting?',rc_c1:'📍 I’m on the 2nd floor',rc_c2:'📍 Near the entrance',rc_c3:'🚶 On my way',joined:'Your buddy joined! 🎉',msg_from:'💬 {n}: {x}',left_note:'Your buddy has left. You can keep going solo or end the session.',
+cam_denied:'Camera permission was blocked. Allow the camera in your browser settings, or type the code instead.',cam_none:'No camera found. Type the code instead.',cam_fail:'Could not start the camera. Type the code instead.',
 ph_focus:'⚡ Focus time',ph_break:'☕ Break time',ph_pass:'🚻 Bathroom pass',round:'Round',pass_left:'Passes left: {n}',b_pass:'🚻 Bathroom pass (10 min)',b_back:'I’m back',
 pass_on:'Timer paused. Your buddy sees you’re on a 10 min break.',b_end:'🛑 End session',demo:'Demo speed ×60',
 chat_t:'💬 Break chat',chat_ph:'Type a message…',send:'Send',chat_off:'Quiet break 💧 Stretch, drink water, rest your eyes.',
@@ -272,6 +271,7 @@ su_t:'⚡ 快速配對',su_find:'尋找夥伴',cancel:'取消',po_t:'發起讀�
 qr_t:'📲 並肩簽到',qr_d:'先在下方聊天找到彼此。碰面後，掃描夥伴的 QR 或輸入對方螢幕上的代碼。',qr_your:'你的代碼',qr_enter:'夥伴的 6 位數代碼',qr_ok:'開始讀書',qr_sim:'⚡ (測試) 自動填入夥伴代碼',qr_bad:'代碼錯誤，請確認夥伴的螢幕。',
 qr_host_d:'先在下方聊天找到彼此，再出示這組代碼或 QR。夥伴加入的瞬間，兩人同時開始計時。',qr_wait:'等待夥伴加入…',qr_cam:'📷 使用相機掃描 QR',pass_buddy:'計時已暫停，夥伴正在休息 10 分鐘。',room_taken:'這個房間剛被別人加入了，請選別的。',t_left:'夥伴已離開。',t_gone:'本次讀書已結束。',
 signin:'使用 Google 登入',signout:'登出',nthu_only:'請使用 @gapp.nthu.edu.tw 帳號登入。',guest_note:'訪客模式 · 登入以保留你的評價',back_ses:'回到讀書',in_ses:'你已經在讀書中。',rat_n:'{n} 則評價',no_rat:'尚無評價',rc_t:'💬 聊天找到彼此',rc_ph:'你坐在哪裡？',rc_c1:'📍 我在二樓',rc_c2:'📍 在入口附近',rc_c3:'🚶 我正在過去',joined:'夥伴加入了！🎉',msg_from:'💬 {n}：{x}',left_note:'夥伴已離開。你可以繼續自己讀，或結束本次。',
+cam_denied:'相機權限被封鎖。請在瀏覽器設定中允許使用相機，或改為輸入代碼。',cam_none:'找不到相機，請改為輸入代碼。',cam_fail:'無法啟動相機，請改為輸入代碼。',
 ph_focus:'⚡ 專注時間',ph_break:'☕ 休息時間',ph_pass:'🚻 暫離洗手間',round:'第',pass_left:'剩餘暫離次數：{n}',b_pass:'🚻 暫離洗手間 (10 分鐘)',b_back:'我回來了',
 pass_on:'計時已暫停，夥伴會看到你正在休息 10 分鐘。',b_end:'🛑 結束讀書',demo:'展示加速 ×60',
 chat_t:'💬 休息聊天室',chat_ph:'輸入訊息…',send:'送出',chat_off:'安靜休息 💧 伸展一下、喝點水、讓眼睛休息。',
@@ -448,19 +448,24 @@ function openQR(b,mode,role){
  pending={b,mode,role,key:b.fbKey,code:b.code};
  const host=role=='host';
  $('qr-host').classList.toggle('hidden',!host);$('qr-guest').classList.toggle('hidden',host);
- if(host){$('qr-my').textContent=b.code;$('qr-img').style.visibility='visible';$('qr-img').src='https://api.qrserver.com/v1/create-qr-code/?size=160x160&data='+b.code}
+ if(host){$('qr-my').textContent=b.code;const q=$('qr-img');q.innerHTML='';try{new QRCode(q,{text:b.code,width:200,height:200,correctLevel:QRCode.CorrectLevel.M})}catch(e){}}
  $('qr-in').value='';openModal('m-qr');
  listenRoom(b.fbKey);paintRoom();
 }
-let scanner=null;
+let scanner=null,lastScan=0;
 function startScanner(){
- if(typeof Html5QrcodeScanner==='undefined')return toast('Scanner not loaded');
+ if(typeof Html5Qrcode==='undefined')return toast(t('cam_fail'));
  $('btn-scan-cam').classList.add('hidden');$('qr-reader').classList.remove('hidden');
- scanner=new Html5QrcodeScanner('qr-reader',{fps:10,qrbox:{width:200,height:200}},false);
- scanner.render(txt=>{$('qr-in').value=txt.trim();confirmQR()},()=>{});
+ scanner=new Html5Qrcode('qr-reader');
+ scanner.start({facingMode:'environment'},
+  {fps:10,qrbox:(w,h)=>{const m=Math.floor(Math.min(w,h)*0.7);return{width:m,height:m}}},
+  txt=>{if(Date.now()-lastScan<2500)return;lastScan=Date.now();$('qr-in').value=txt.trim();confirmQR()},()=>{})
+ .catch(e=>{stopScanner();const m=((e&&e.name)||'')+' '+e;
+  toast(t(/NotAllowed|Permission|denied/i.test(m)?'cam_denied':/NotFound|Devices|Requested device/i.test(m)?'cam_none':'cam_fail'))});
 }
 function stopScanner(){
- if(scanner){try{scanner.clear()}catch(e){}scanner=null}
+ const sc=scanner;scanner=null;
+ if(sc)Promise.resolve().then(()=>sc.stop()).catch(()=>{}).then(()=>{try{sc.clear()}catch(e){}});
  $('qr-reader').classList.add('hidden');$('btn-scan-cam').classList.remove('hidden');
 }
 function confirmQR(){
