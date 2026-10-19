@@ -8,6 +8,7 @@
 <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{nthu:{500:'#8A2BE2',600:'#7B1FA2',700:'#5e1488'},dk:'#0F0F13',card:'#181820',line:'#2A2A38'}}}}</script>
 <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
 <script src="https://unpkg.com/html5-qrcode"></script>
 <style>
 .hidden{display:none!important}
@@ -43,6 +44,7 @@ body{font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC","PingFang TC"
    <button class="nav" data-v="rules" onclick="show('rules')" data-i="n_rules"></button>
   </nav>
   <div class="flex items-center gap-2">
+   <button id="auth-btn" onclick="authClick()" class="btn-g !px-3 text-xs"></button>
    <button id="th" onclick="toggleTheme()" class="btn-g !px-3"></button>
    <button id="lg" onclick="toggleLang()" class="btn-g !px-3 text-xs"></button>
    <button id="hd-av" onclick="show('profile')" class="w-9 h-9 rounded-full overflow-hidden border-2 border-nthu-500"></button>
@@ -66,7 +68,7 @@ body{font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC","PingFang TC"
  <div class="grid md:grid-cols-3 gap-4">
   <div class="card"><div class="text-xs text-gray-500" data-i="s_streak"></div><div id="st-streak" class="text-3xl font-extrabold">0</div><div class="text-xs text-green-500" data-i="s_freeze"></div></div>
   <div class="card"><div class="text-xs text-gray-500" data-i="s_title"></div><div id="st-title" class="text-xl font-bold mt-1"></div><div id="st-hours" class="text-xs text-gray-400"></div></div>
-  <div class="card"><div class="text-xs text-gray-500" data-i="s_rating"></div><div class="text-3xl font-extrabold">4.9 ⭐</div><div class="text-xs text-purple-400" data-i="s_badges"></div></div>
+  <div class="card"><div class="text-xs text-gray-500" data-i="s_rating"></div><div id="st-rating" class="text-3xl font-extrabold">—</div><div id="st-rsub" class="text-xs text-purple-400"></div></div>
  </div>
  <div class="space-y-3">
   <h2 class="text-xl font-bold" data-i="how_t"></h2>
@@ -107,12 +109,14 @@ body{font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC","PingFang TC"
    <div class="h-2 rounded-full bg-gray-200 dark:bg-line overflow-hidden mt-3"><div id="bar" class="h-full bg-nthu-500 transition-all" style="width:0"></div></div>
    <div class="flex justify-between text-xs text-gray-400 mt-1"><span id="s-round"></span><span id="s-passes"></span></div>
   </div>
+  <div id="left-note" class="hidden text-sm p-3 rounded-xl bg-purple-500/10" data-i="left_note"></div>
   <div id="pass-on" class="hidden text-sm p-3 rounded-xl bg-yellow-500/10 text-yellow-600 dark:text-yellow-400"><span id="pass-msg"></span> <button id="b-back" class="btn-g ml-2 !py-1" onclick="backFromPass()" data-i="b_back"></button></div>
   <div class="flex flex-wrap justify-center gap-3">
    <button id="b-pass" class="btn-g" onclick="usePass()" data-i="b_pass"></button>
    <button class="btn-g !text-red-500" onclick="endSession()" data-i="b_end"></button>
   </div>
-    <div id="chat" class="hidden text-left border-t border-gray-200 dark:border-line pt-4 space-y-3">
+    <label class="flex items-center justify-center gap-2 text-xs text-gray-400"><input id="sp" type="checkbox" onchange="setSpeed(this.checked?60:1)"><span data-i="demo"></span></label>
+  <div id="chat" class="hidden text-left border-t border-gray-200 dark:border-line pt-4 space-y-3">
    <div id="chat-on" class="space-y-3">
     <h4 class="font-bold text-sm" data-i="chat_t"></h4>
     <div id="ice" class="text-xs p-3 rounded-xl bg-nthu-500/10"></div>
@@ -129,7 +133,7 @@ body{font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC","PingFang TC"
 <section id="v-profile" class="hidden space-y-5">
  <div class="card flex items-center gap-5">
   <div id="p-av" class="w-20 h-20 rounded-full overflow-hidden border-4 border-nthu-500 shrink-0"></div>
-  <div><h2 class="text-2xl font-bold" data-i="p_name"></h2><div class="text-xs text-gray-400">@gapp.nthu.edu.tw</div><div id="p-title" class="mt-2 inline-block text-xs px-3 py-1 rounded-full bg-nthu-500/20 text-nthu-500 font-semibold"></div></div>
+  <div><h2 id="p-name" class="text-2xl font-bold"></h2><div id="p-mail" class="text-xs text-gray-400"></div><div id="p-title" class="mt-2 inline-block text-xs px-3 py-1 rounded-full bg-nthu-500/20 text-nthu-500 font-semibold"></div></div>
  </div>
  <div class="card space-y-3"><h3 class="font-bold text-sm" data-i="p_av"></h3><div id="avs" class="grid grid-cols-3 sm:grid-cols-6 gap-3"></div></div>
  <div class="card space-y-3"><h3 class="font-bold text-sm" data-i="p_bg"></h3><div id="bgs" class="grid grid-cols-2 sm:grid-cols-5 gap-3"></div></div>
@@ -164,11 +168,11 @@ body{font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC","PingFang TC"
  <button class="btn-g w-full" onclick="closeModal('m-post')" data-i="cancel"></button>
 </div></div>
 
-<div id="m-qr" class="modal hidden"><div class="mbox">
+<div id="m-qr" class="modal hidden"><div class="mbox max-h-[92vh] overflow-y-auto">
  <h3 class="text-lg font-bold" data-i="qr_t"></h3>
  <div id="qr-host" class="space-y-3">
   <p class="text-xs text-gray-400" data-i="qr_host_d"></p>
-  <div class="w-40 h-40 mx-auto bg-white p-2 rounded-2xl"><img id="qr-img" class="w-full h-full" alt="" onerror="this.style.visibility='hidden'"></div>
+  <div class="w-36 h-36 mx-auto bg-white p-2 rounded-2xl"><img id="qr-img" class="w-full h-full" alt="" onerror="this.style.visibility='hidden'"></div>
   <div id="qr-my" class="text-4xl font-extrabold tracking-widest tabular-nums"></div>
   <div class="text-xs text-nthu-500 animate-pulse" data-i="qr_wait"></div>
  </div>
@@ -179,7 +183,15 @@ body{font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC","PingFang TC"
   <input id="qr-in" class="inp text-center tracking-widest" inputmode="numeric" maxlength="6" data-p="qr_enter" onkeydown="event.key=='Enter'&&confirmQR()">
   <button class="btn-p w-full !bg-green-500 hover:!bg-green-600" onclick="confirmQR()" data-i="qr_ok"></button>
  </div>
- <button class="btn-g w-full" onclick="closeModal('m-qr');stopScanner()" data-i="cancel"></button>
+ <div class="text-left space-y-2 border-t border-gray-200 dark:border-line pt-3">
+  <div class="text-xs font-bold" data-i="rc_t"></div>
+  <div id="qr-log" class="h-28 overflow-y-auto p-2 rounded-xl bg-gray-50 dark:bg-dk flex flex-col gap-1"></div>
+  <div class="flex flex-wrap gap-1.5">
+   <span class="chip" onclick="roomSay(t('rc_c1'))" data-i="rc_c1"></span><span class="chip" onclick="roomSay(t('rc_c2'))" data-i="rc_c2"></span><span class="chip" onclick="roomSay(t('rc_c3'))" data-i="rc_c3"></span>
+  </div>
+  <div class="flex gap-2"><input id="rc-in" class="inp" maxlength="200" data-p="rc_ph" onkeydown="event.key=='Enter'&&roomSay()"><button class="btn-p" onclick="roomSay()" data-i="send"></button></div>
+ </div>
+ <button class="btn-g w-full" onclick="closeQR()" data-i="cancel"></button>
 </div></div>
 
 <div id="m-rate" class="modal hidden"><div class="mbox">
@@ -187,14 +199,15 @@ body{font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC","PingFang TC"
  <p class="text-xs text-gray-400" data-i="r_d"></p>
  <div id="stars" class="flex justify-center gap-1"></div>
  <div class="flex flex-wrap justify-center gap-2">
-  <span class="chip" onclick="this.classList.toggle('on')" data-i="r_quiet"></span>
-  <span class="chip" onclick="this.classList.toggle('on')" data-i="r_focus"></span>
-  <span class="chip" onclick="this.classList.toggle('on')" data-i="r_friend"></span>
+  <span class="chip" onclick="this.classList.toggle('on')" data-i="r_quiet" data-b="quiet"></span>
+  <span class="chip" onclick="this.classList.toggle('on')" data-i="r_focus" data-b="focus"></span>
+  <span class="chip" onclick="this.classList.toggle('on')" data-i="r_friend" data-b="friend"></span>
  </div>
  <button class="btn-p w-full" onclick="finish(false)" data-i="r_go"></button>
  <button class="w-full text-xs text-red-400 py-1" onclick="finish(true)" data-i="r_rep"></button>
 </div></div>
 
+<button id="back-ses" class="hidden fixed bottom-16 right-4 z-40 btn-p !rounded-full shadow-lg" onclick="show('session')"></button>
 <div id="toasts" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-[60] space-y-2 w-[90%] max-w-sm"></div>
 
 <script>
@@ -222,8 +235,9 @@ f_mall:'All modes',f_gall:'Any gender',f_gsame:'Same gender',f_gopp:'Opposite ge
 m_strict:'Strict Study (50/10)',m_social:'Study & Social (50/15)',loc_main:'Main Library (總圖)',loc_nanda:'Nanda Library (南大)',
 l_join:'Match & sit together',l_empty:'No sessions match your filters. Post your own!',l_mine:'Your post',
 su_t:'⚡ Quick Match',su_find:'Find a buddy',cancel:'Cancel',po_t:'Post a study session',po_topic:'What are you working on?',po_go:'Publish',
-qr_t:'📲 Check in side by side',qr_d:'Scan your buddy’s QR or type the code shown on their screen.',qr_your:'Your code',qr_enter:'Buddy’s 6-digit code',qr_ok:'Start session',qr_sim:'⚡ (Test) Fill in buddy’s code',qr_bad:'Wrong code. Check your buddy’s screen.',
-qr_host_d:'Show this code or QR to your buddy. The timer starts for both of you the moment they join.',qr_wait:'Waiting for your buddy…',qr_cam:'📷 Scan QR with camera',pass_buddy:'Timer paused. Your buddy is on a 10 min break.',room_taken:'This room was just taken. Try another one.',t_left:'Your buddy left the session.',t_gone:'The session has ended.',
+qr_t:'📲 Check in side by side',qr_d:'Chat below to find each other. When you meet, scan your buddy’s QR or type the code on their screen.',qr_your:'Your code',qr_enter:'Buddy’s 6-digit code',qr_ok:'Start session',qr_sim:'⚡ (Test) Fill in buddy’s code',qr_bad:'Wrong code. Check your buddy’s screen.',
+qr_host_d:'Chat below to find each other, then show this code or QR. The timer starts for both of you the moment your buddy joins.',qr_wait:'Waiting for your buddy…',qr_cam:'📷 Scan QR with camera',pass_buddy:'Timer paused. Your buddy is on a 10 min break.',room_taken:'This room was just taken. Try another one.',t_left:'Your buddy left the session.',t_gone:'The session has ended.',
+signin:'Sign in with Google',signout:'Sign out',nthu_only:'Please use your @gapp.nthu.edu.tw account.',guest_note:'Guest mode · sign in to keep your rating',back_ses:'Back to session',in_ses:'You are already in a session.',rat_n:'{n} ratings',no_rat:'No ratings yet',rc_t:'💬 Chat to find each other',rc_ph:'Where are you sitting?',rc_c1:'📍 I’m on the 2nd floor',rc_c2:'📍 Near the entrance',rc_c3:'🚶 On my way',joined:'Your buddy joined! 🎉',msg_from:'💬 {n}: {x}',left_note:'Your buddy has left. You can keep going solo or end the session.',
 ph_focus:'⚡ Focus time',ph_break:'☕ Break time',ph_pass:'🚻 Bathroom pass',round:'Round',pass_left:'Passes left: {n}',b_pass:'🚻 Bathroom pass (10 min)',b_back:'I’m back',
 pass_on:'Timer paused. Your buddy sees you’re on a 10 min break.',b_end:'🛑 End session',demo:'Demo speed ×60',
 chat_t:'💬 Break chat',chat_ph:'Type a message…',send:'Send',chat_off:'Quiet break 💧 Stretch, drink water, rest your eyes.',
@@ -252,8 +266,9 @@ f_mall:'所有模式',f_gall:'性別不限',f_gsame:'同性別',f_gopp:'異性�
 m_strict:'嚴格讀書 (50/10)',m_social:'讀書＋社交 (50/15)',loc_main:'總圖書館',loc_nanda:'南大校區圖書館',
 l_join:'配對並一起坐',l_empty:'沒有符合條件的揪團，自己發起一個吧！',l_mine:'你的揪團',
 su_t:'⚡ 快速配對',su_find:'尋找夥伴',cancel:'取消',po_t:'發起讀書揪團',po_topic:'你在讀什麼？',po_go:'發佈',
-qr_t:'📲 並肩簽到',qr_d:'掃描夥伴螢幕上的 QR，或輸入上面的代碼。',qr_your:'你的代碼',qr_enter:'夥伴的 6 位數代碼',qr_ok:'開始讀書',qr_sim:'⚡ (測試) 自動填入夥伴代碼',qr_bad:'代碼錯誤，請確認夥伴的螢幕。',
-qr_host_d:'把這組代碼或 QR 給夥伴看。對方加入的瞬間，兩人同時開始計時。',qr_wait:'等待夥伴加入…',qr_cam:'📷 使用相機掃描 QR',pass_buddy:'計時已暫停，夥伴正在休息 10 分鐘。',room_taken:'這個房間剛被別人加入了，請選別的。',t_left:'夥伴已離開。',t_gone:'本次讀書已結束。',
+qr_t:'📲 並肩簽到',qr_d:'先在下方聊天找到彼此。碰面後，掃描夥伴的 QR 或輸入對方螢幕上的代碼。',qr_your:'你的代碼',qr_enter:'夥伴的 6 位數代碼',qr_ok:'開始讀書',qr_sim:'⚡ (測試) 自動填入夥伴代碼',qr_bad:'代碼錯誤，請確認夥伴的螢幕。',
+qr_host_d:'先在下方聊天找到彼此，再出示這組代碼或 QR。夥伴加入的瞬間，兩人同時開始計時。',qr_wait:'等待夥伴加入…',qr_cam:'📷 使用相機掃描 QR',pass_buddy:'計時已暫停，夥伴正在休息 10 分鐘。',room_taken:'這個房間剛被別人加入了，請選別的。',t_left:'夥伴已離開。',t_gone:'本次讀書已結束。',
+signin:'使用 Google 登入',signout:'登出',nthu_only:'請使用 @gapp.nthu.edu.tw 帳號登入。',guest_note:'訪客模式 · 登入以保留你的評價',back_ses:'回到讀書',in_ses:'你已經在讀書中。',rat_n:'{n} 則評價',no_rat:'尚無評價',rc_t:'💬 聊天找到彼此',rc_ph:'你坐在哪裡？',rc_c1:'📍 我在二樓',rc_c2:'📍 在入口附近',rc_c3:'🚶 我正在過去',joined:'夥伴加入了！🎉',msg_from:'💬 {n}：{x}',left_note:'夥伴已離開。你可以繼續自己讀，或結束本次。',
 ph_focus:'⚡ 專注時間',ph_break:'☕ 休息時間',ph_pass:'🚻 暫離洗手間',round:'第',pass_left:'剩餘暫離次數：{n}',b_pass:'🚻 暫離洗手間 (10 分鐘)',b_back:'我回來了',
 pass_on:'計時已暫停，夥伴會看到你正在休息 10 分鐘。',b_end:'🛑 結束讀書',demo:'展示加速 ×60',
 chat_t:'💬 休息聊天室',chat_ph:'輸入訊息…',send:'送出',chat_off:'安靜休息 💧 伸展一下、喝點水、讓眼睛休息。',
@@ -285,7 +300,7 @@ const AV=[
  {id:'TechCoder',f:'tech',g:'m',k:'av1'},{id:'SportyChill',f:'sporty',g:'m',k:'av2'},{id:'ClassicScholar',f:'scholar',g:'m',k:'av3'},
  {id:'BobaLover',f:'boba',g:'f',k:'av4'},{id:'CreativeDesign',f:'creative',g:'f',k:'av5'},{id:'FocusAchiever',f:'focus',g:'f',k:'av6'}];
 const img=(a,c)=>`<img class="${c||''}" alt="" src="images/avatar-${a.f}.png" onerror="this.onerror=null;this.src='https://api.dicebear.com/7.x/bottts/svg?seed=${a.id}'">`;
-let ses=null,sd=null,sref=null,chatRef=null,pending=null,rate=5,lastPh='',offset=0,online=0,studying=0,lobby=[];
+let ses=null,sd=null,sref=null,chatRef=null,pending=null,rate=5,lastPh='',offset=0,online=0,studying=0,lobby=[],view='home';
 const mySessionId=(()=>{let u=sessionStorage.getItem('uid');if(!u){u=Math.random().toString(36).slice(2,10);sessionStorage.setItem('uid',u)}return u})();
 const DEMO=location.search.includes('demo');   // add ?demo to the URL = timer runs x60
 const now=()=>Date.now()+offset;
@@ -294,14 +309,45 @@ if(db){
  db.ref('.info/serverTimeOffset').on('value',x=>offset=x.val()||0);
  db.ref('.info/connected').on('value',x=>{if(x.val()){const r=db.ref('presence/'+mySessionId);r.onDisconnect().remove();r.set(!!ses)}});
  db.ref('presence').on('value',x=>{online=x.numChildren();studying=0;x.forEach(c=>{if(c.val()===true)studying++});showLive()});
- db.ref('lobby').on('value',snap=>{lobby=[];snap.forEach(c=>{const d=c.val();lobby.push({fbKey:c.key,uid:d.uid,me:d.uid===mySessionId,code:d.code,n:d.n,d:d.d,m:d.m,l:d.l,a:d.a,topic:d.topic})});renderLobby()});
+ db.ref('lobby').on('value',snap=>{lobby=[];snap.forEach(c=>{const d=c.val();lobby.push({fbKey:c.key,uid:d.uid,rid:d.rid,rs:d.rs,rn:d.rn,me:d.uid===mySessionId,code:d.code,n:d.n,d:d.d,m:d.m,l:d.l,a:d.a,topic:d.topic})});renderLobby()});
 }
 const setStudying=v=>{if(db)db.ref('presence/'+mySessionId).set(v)};
 
+/* ---------- AUTH (Google) + GUEST + PEER RATING ---------- */
+const NTHU_ONLY=true;   // true = only @gapp.nthu.edu.tw may sign in. Guest is always allowed.
+let user=null,auth=null,aggRef=null,agg=null;
+const guestId=(()=>{let g=localStorage.getItem('gid');if(!g){g='g_'+Math.random().toString(36).slice(2,10);localStorage.setItem('gid',g)}return g})();
+const rid=()=>user?user.uid:guestId;
+const myName=()=>user&&user.displayName?user.displayName.split(' ')[0]:'NTHU Student';
+try{auth=firebase.auth()}catch(e){console.error('Auth error',e)}
+function watchAgg(){
+ if(aggRef)aggRef.off();if(!db)return;
+ aggRef=db.ref('agg/'+rid());aggRef.on('value',x=>{agg=x.val();renderStats()});
+}
+if(auth)auth.onAuthStateChanged(u=>{
+ if(u&&NTHU_ONLY&&!/@gapp\.nthu\.edu\.tw$/i.test(u.email||'')){toast(t('nthu_only'));auth.signOut();return}
+ user=u;renderAuth();watchAgg();
+});else watchAgg();
+function renderAuth(){
+ $('auth-btn').textContent=user?t('signout'):t('signin');
+ $('p-name').textContent=user?user.displayName:t('p_name');
+ $('p-mail').textContent=user?user.email:t('guest_note');
+}
+function authClick(){
+ if(!auth)return toast('Auth offline');
+ if(user)return auth.signOut();
+ const p=new firebase.auth.GoogleAuthProvider();
+ p.setCustomParameters(NTHU_ONLY?{hd:'gapp.nthu.edu.tw',prompt:'select_account'}:{prompt:'select_account'});
+ auth.signInWithPopup(p).catch(e=>{if(e.code!='auth/popup-closed-by-user')toast(e.code||'login error')});
+}
+
 /* ---------- NAV / THEME / LANG ---------- */
 function show(v){
+ if(v=='session'&&!ses)v='home';
+ view=v;
  ['home','lobby','session','profile','rules'].forEach(x=>$('v-'+x).classList.toggle('hidden',x!=v));
  document.querySelectorAll('.nav').forEach(b=>b.classList.toggle('on',b.dataset.v==v));
+ $('back-ses').classList.toggle('hidden',!(ses&&v!='session'));
  scrollTo(0,0);
 }
 function applyTheme(){document.documentElement.classList.toggle('dark',S.theme=='dark');$('th').textContent=S.theme=='dark'?'🌙':'☀️'}
@@ -312,7 +358,7 @@ function applyLang(){
  document.querySelectorAll('[data-h]').forEach(e=>e.innerHTML=t(e.dataset.h));
  document.querySelectorAll('[data-p]').forEach(e=>e.placeholder=t(e.dataset.p));
  $('lg').textContent=S.lang=='en'?'🌐 EN / 繁中':'🌐 繁中 / EN';
- renderLobby();renderProfile();renderStats();renderSes();showLive();
+ renderLobby();renderProfile();renderStats();renderSes();showLive();renderAuth();
 }
 function toggleLang(){S.lang=S.lang=='en'?'zh':'en';save();applyLang()}
 function toast(m){const d=document.createElement('div');d.className='card !py-3 text-sm text-center shadow-lg border-nthu-500/40';d.textContent=m;$('toasts').append(d);setTimeout(()=>d.remove(),3500)}
@@ -327,30 +373,66 @@ function renderLobby(){
  <div class="card space-y-3">
   <div class="flex items-center gap-3">
    <div class="w-11 h-11 rounded-full overflow-hidden border-2 border-nthu-500">${img(AV[x.a],'w-full h-full')}</div>
-   <div><b class="text-sm">${x.me?t('you'):x.n}</b><div class="text-xs text-gray-400">${x.d} · ${t('loc_'+x.l)}</div></div>
+   <div><b class="text-sm">${x.me?t('you'):x.n}</b><div class="text-xs text-gray-400">${x.d} · ${t('loc_'+x.l)}${x.rn?' · ⭐ '+x.rs+' ('+x.rn+')':''}</div></div>
   </div>
   <div class="text-xs">📌 ${t('m_'+x.m)}</div>
   <div class="text-xs text-gray-400">📖 ${esc(x.topic)}</div>
   ${x.me?`<button class="btn-p !bg-nthu-600 w-full" onclick="join('${x.fbKey}')">📲 ${t('qr_t')}</button>`:`<button class="btn-p w-full" onclick="join('${x.fbKey}')">🤝 ${t('l_join')}</button>`}
  </div>`).join(''):`<p class="text-sm text-gray-400 col-span-full">${t('l_empty')}</p>`;
 }
+const inSes=()=>{if(ses){toast(t('in_ses'));show('session');return true}return false};
+
+/* ---------- PRE-MEETING ROOM CHAT ---------- */
+const roomMsgs={},roomOn={};
+function listenRoom(key){
+ if(roomOn[key]||!db)return;
+ const t0=Date.now();roomOn[key]=t0;roomMsgs[key]=[];
+ db.ref('roomchat/'+key).on('child_added',x=>{
+  const c=x.val();roomMsgs[key].push(c);
+  const open=pending&&pending.key==key&&!$('m-qr').classList.contains('hidden');
+  if(open)paintRoom();
+  else if(c.u!==mySessionId&&c.ts>t0-2000)toast(t('msg_from').replace('{n}',c.n).replace('{x}',c.x));
+ });
+}
+function unlistenRoom(key){if(roomOn[key]){db.ref('roomchat/'+key).off();delete roomOn[key];delete roomMsgs[key]}}
+function paintRoom(){
+ const log=$('qr-log');log.innerHTML='';
+ (roomMsgs[pending.key]||[]).forEach(c=>{
+  const me=c.u===mySessionId,d=document.createElement('div');
+  d.className='max-w-[85%] px-3 py-1.5 rounded-xl text-sm '+(me?'self-end bg-nthu-600 text-white':'self-start bg-gray-200 dark:bg-line');
+  d.textContent=me?c.x:c.n+': '+c.x;log.append(d);
+ });
+ log.scrollTop=1e9;
+}
+function roomSay(x){
+ x=String(x||$('rc-in').value).trim();if(!x||!pending||!db)return;
+ $('rc-in').value='';
+ db.ref('roomchat/'+pending.key).push({u:mySessionId,n:myName(),x:x.slice(0,200),ts:Date.now()});
+}
+function closeQR(){
+ closeModal('m-qr');stopScanner();
+ if(pending&&pending.role=='guest')unlistenRoom(pending.key);
+}
+
+/* ---------- POST ROOM ---------- */
 function submitPost(){
  if(!db)return toast('Firebase offline');
- const code=rnd6(),mode=$('po-mode').value,r=db.ref('lobby').push();
- r.onDisconnect().remove();
- r.set({uid:mySessionId,code,n:'NTHU Student',d:'Library',m:mode,l:$('po-loc').value,a:S.av,topic:$('po-topic').value.trim()||'—',ts:Date.now()});
+ if(inSes())return;
+ const code=rnd6(),mode=$('po-mode').value,r=db.ref('lobby').push(),key=r.key;
+ r.onDisconnect().remove();db.ref('roomchat/'+key).onDisconnect().remove();
+ r.set({uid:mySessionId,rid:rid(),rs:agg&&agg.n?+(agg.sum/agg.n).toFixed(1):null,rn:agg&&agg.n?agg.n:null,
+  code,n:myName(),d:'Library',m:mode,l:$('po-loc').value,a:S.av,topic:$('po-topic').value.trim()||'—',ts:Date.now()});
  $('po-topic').value='';closeModal('m-post');toast(t('t_posted'));
- watchRoom(r.key);
- openQR({fbKey:r.key,code,m:mode,a:S.av,me:1},mode,'host');
+ listenRoom(key);watchRoom(key);
+ openQR({fbKey:key,code,m:mode,a:S.av,me:1},mode,'host');
 }
-/* host: wait until a guest creates sessions/<key> */
 function watchRoom(key){
  const r=db.ref('sessions/'+key);
- r.on('value',x=>{const d=x.val();if(d&&d.startedAt&&!ses){r.off();closeModal('m-qr');attach(key,'host')}});
+ r.on('value',x=>{const d=x.val();if(d&&d.startedAt&&!ses){r.off();closeModal('m-qr');unlistenRoom(key);toast(t('joined'));attach(key,'host')}});
 }
 
 /* ---------- MATCH + QR CHECK-IN ---------- */
-function openSetup(){openModal('m-setup')}
+function openSetup(){if(!inSes())openModal('m-setup')}
 function findMatch(){
  const m=$('su-mode').value,g=$('su-gender').value,me=AV[S.av].g;
  let pool=lobby.filter(x=>!x.me&&x.m==m&&(g=='all'||(g=='same')==(AV[x.a].g==me)));
@@ -358,13 +440,14 @@ function findMatch(){
  if(!pool.length)return toast(t('l_empty'));
  closeModal('m-setup');openQR(pool[Math.floor(Math.random()*pool.length)],m,'guest');
 }
-function join(k){const b=lobby.find(x=>x.fbKey==k);if(b)openQR(b,b.m,b.me?'host':'guest')}
+function join(k){if(inSes())return;const b=lobby.find(x=>x.fbKey==k);if(b)openQR(b,b.m,b.me?'host':'guest')}
 function openQR(b,mode,role){
  pending={b,mode,role,key:b.fbKey,code:b.code};
  const host=role=='host';
  $('qr-host').classList.toggle('hidden',!host);$('qr-guest').classList.toggle('hidden',host);
  if(host){$('qr-my').textContent=b.code;$('qr-img').style.visibility='visible';$('qr-img').src='https://api.qrserver.com/v1/create-qr-code/?size=160x160&data='+b.code}
  $('qr-in').value='';openModal('m-qr');
+ listenRoom(b.fbKey);paintRoom();
 }
 let scanner=null;
 function startScanner(){
@@ -377,15 +460,15 @@ function stopScanner(){
  if(scanner){try{scanner.clear()}catch(e){}scanner=null}
  $('qr-reader').classList.add('hidden');$('btn-scan-cam').classList.remove('hidden');
 }
-/* guest: verify code, then create the shared session (only one guest can win) */
 function confirmQR(){
  if(!pending||pending.role!='guest'||!db)return;
  if($('qr-in').value.trim()!==pending.code)return toast(t('qr_bad'));
  stopScanner();closeModal('m-qr');
  const b=pending.b,key=pending.key;
- db.ref('sessions/'+key).transaction(cur=>cur?undefined:{mode:b.m,hostAv:b.a,guestAv:S.av,guestUid:mySessionId,
-   startedAt:firebase.database.ServerValue.TIMESTAMP,speed:DEMO?60:1,pausedTotal:0,pausedAt:null,passes_host:2,passes_guest:2},
-  (err,ok)=>{if(err||!ok)return toast(t('room_taken'));db.ref('lobby/'+key).remove();attach(key,'guest')});
+ db.ref('sessions/'+key).transaction(cur=>cur?undefined:{mode:b.m,hostAv:b.a,guestAv:S.av,hostRid:b.rid||null,guestRid:rid(),
+   hostName:b.n||'',guestName:myName(),guestUid:mySessionId,startedAt:firebase.database.ServerValue.TIMESTAMP,
+   speed:DEMO?60:1,pausedTotal:0,pausedAt:null,passes_host:2,passes_guest:2},
+  (err,ok)=>{if(err||!ok)return toast(t('room_taken'));db.ref('lobby/'+key).remove();db.ref('roomchat/'+key).remove();unlistenRoom(key);attach(key,'guest')});
 }
 
 /* ---------- SHARED SESSION ---------- */
@@ -393,13 +476,14 @@ function attach(key,role){
  sessionStorage.setItem('cur',key+':'+role);
  ses={key,role,end:0};sd=null;lastPh='';
  sref=db.ref('sessions/'+key);
+ ses.lr=sref.child('left_'+role);ses.lr.remove();ses.lr.onDisconnect().set(true);   // tab closed = "left"
  sref.on('value',x=>{
   const d=x.val();
   if(!d){if(ses&&!ses.end){toast(t('t_gone'));detach()}return}
   const first=!sd;sd=d;
   if(first){setStudying(true);$('chat-log').innerHTML='';show('session')}
   const o=ses.role=='host'?'guest':'host';
-  if(d['left_'+o]&&!ses.warned){ses.warned=1;toast(t('t_left'))}
+  if(d['left_'+o]){if(!ses.warned){ses.warned=1;toast(t('t_left'))}}else ses.warned=0;
   renderSes();
  });
  chatRef=sref.child('chat');
@@ -414,7 +498,6 @@ function restoreSession(){
  const [k,r]=c.split(':');
  db.ref('sessions/'+k).once('value',x=>{if(x.val()&&x.val().startedAt)attach(k,r);else sessionStorage.removeItem('cur')});
 }
-/* every phone derives the same clock from the shared start time */
 function calc(){
  const m=MODE[sd.mode],F=m.f*60,C=F+m.b*60,sp=sd.speed||1;
  const el=Math.max(0,((sd.pausedAt||now())-sd.startedAt-(sd.pausedTotal||0))/1000*sp);
@@ -424,19 +507,24 @@ function calc(){
 const fmt=s=>{s=Math.max(0,Math.ceil(s));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
 function renderSes(){
  if(!ses||!sd)return;
- const c=calc(),m=MODE[sd.mode],sp=sd.speed||1,me=ses.role;
+ const c=calc(),m=MODE[sd.mode],sp=sd.speed||1,me=ses.role,o=me=='host'?'guest':'host';
  const pl=sd.pausedAt?600-(now()-sd.pausedAt)/1000*sp:0;
  const left=c.ph=='pass'?pl:c.left,tot=c.ph=='focus'?c.F:c.ph=='break'?m.b*60:600;
  const bav=me=='host'?sd.guestAv:sd.hostAv,mp=sd['passes_'+me]??2,mineP=sd.pausedBy==me;
  $('tm').textContent=fmt(left);$('tm-ph').textContent=t('ph_'+c.ph);$('bar').style.width=Math.min(100,100-left/tot*100)+'%';
- $('s-av').innerHTML=img(AV[bav],'w-full h-full');$('s-name').textContent=t('p_name');$('s-mode').textContent=t('m_'+sd.mode);
+ $('s-av').innerHTML=img(AV[bav],'w-full h-full');
+ $('s-name').textContent=(me=='host'?sd.guestName:sd.hostName)||t('p_name');
+ $('s-mode').textContent=t('m_'+sd.mode);
  $('s-round').textContent=S.lang=='zh'?t('round')+' '+c.round+' 輪':t('round')+' '+c.round;
  $('s-passes').textContent=t('pass_left').replace('{n}',mp);
+ $('sp').checked=sp==60;
+ $('left-note').classList.toggle('hidden',!sd['left_'+o]);
  $('pass-on').classList.toggle('hidden',c.ph!='pass');$('pass-msg').textContent=t(mineP?'pass_on':'pass_buddy');
  $('b-back').classList.toggle('hidden',!mineP);$('b-pass').disabled=c.ph!='focus'||mp<1;
  const soc=sd.mode=='social';
  $('chat').classList.toggle('hidden',c.ph!='break');$('chat-on').classList.toggle('hidden',!soc);$('chat-off').classList.toggle('hidden',soc);
  $('ice').textContent='💡 '+t('ice'+(c.round%3));
+ $('back-ses').textContent='⏱ '+fmt(left)+' · '+t('back_ses');
  if(lastPh&&lastPh!=c.ph&&c.ph!='pass')toast(t(c.ph=='break'?'t_break':'t_focus'));
  if(c.ph!='pass')lastPh=c.ph;
 }
@@ -454,8 +542,14 @@ function resume(){
  if(sref)sref.transaction(x=>{if(x&&x.pausedAt){x.pausedTotal=(x.pausedTotal||0)+(now()-x.pausedAt);x.pausedAt=null;x.pausedBy=null;return x}});
 }
 const backFromPass=resume;
+/* demo speed: shared by both, clock is re-based so it never jumps */
+function setSpeed(v){
+ if(!sref)return;
+ sref.transaction(x=>{if(!x)return;const sp=x.speed||1,T=x.pausedAt||now(),el=(T-x.startedAt-(x.pausedTotal||0))/1000*sp;
+  x.startedAt=T-(x.pausedTotal||0)-el*1000/v;x.speed=v;return x});
+}
 
-/* ---------- CHAT (shared) ---------- */
+/* ---------- CHAT (in session, shared) ---------- */
 function bubble(me,txt){
  const d=document.createElement('div');
  d.className='max-w-[80%] px-3 py-1.5 rounded-xl text-sm '+(me?'self-end bg-nthu-600 text-white':'self-start bg-gray-200 dark:bg-line');
@@ -480,12 +574,19 @@ function updateStreak(){
  S.last=d;
 }
 function finish(report){
- closeModal('m-rate');if(report)toast(t('t_report'));
+ closeModal('m-rate');
  const c=sd?calc():null,mn=c?(Math.floor(c.el/c.C)*c.F+Math.min(c.r,c.F))/60:0;
+ const brid=sd&&(ses.role=='host'?sd.guestRid:sd.hostRid);
+ if(report){toast(t('t_report'));if(brid&&db)db.ref('reports/'+brid).push({by:rid(),ts:Date.now()})}
+ else if(brid&&db){
+  const bs=[...document.querySelectorAll('#m-rate .chip.on')].map(ch=>ch.dataset.b),st=rate;
+  db.ref('agg/'+brid).transaction(a=>{a=a||{sum:0,n:0,quiet:0,focus:0,friend:0};a.sum+=st;a.n++;bs.forEach(b=>{a[b]=(a[b]||0)+1});return a});
+ }
  if(mn>=1){S.min+=mn;S.ses++;updateStreak();const h=new Date().getHours();if(h>=22||h<5)S.owl=1;toast(t('t_done'))}
  else toast(t('t_short'));
  save();
  const key=ses.key,role=ses.role,o=role=='host'?'guest':'host',other=sd&&sd['left_'+o];
+ ses.lr.onDisconnect().cancel();
  if(other)db.ref('sessions/'+key).remove();else db.ref('sessions/'+key+'/left_'+role).set(true);
  detach();renderStats();renderProfile();
 }
@@ -498,6 +599,9 @@ function renderStats(){
  $('st-title').textContent=t(title());
  $('st-hours').textContent=t('hrs').replace('{h}',(S.min/60).toFixed(1));
  $('p-title').textContent=t(title());
+ const n=agg&&agg.n||0;
+ $('st-rating').textContent=n?(agg.sum/n).toFixed(1)+' ⭐':'—';
+ $('st-rsub').textContent=n?t('rat_n').replace('{n}',n)+' · 🤫'+(agg.quiet||0)+' ⚡'+(agg.focus||0)+' 🤝'+(agg.friend||0):t('no_rat');
 }
 function renderHdr(){$('hd-av').innerHTML=img(AV[S.av],'w-full h-full');$('p-av').innerHTML=img(AV[S.av],'w-full h-full')}
 function pick(i){S.av=i;save();renderHdr();renderProfile();renderLobby()}
