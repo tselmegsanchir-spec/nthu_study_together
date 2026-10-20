@@ -162,6 +162,13 @@ body{font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC","PingFang TC"
  <button class="btn-g w-full" onclick="closeModal('m-setup')" data-i="cancel"></button>
 </div></div>
 
+<div id="m-noroom" class="modal hidden"><div class="mbox">
+ <h3 class="text-lg font-bold" data-i="nr_t"></h3>
+ <p class="text-sm text-gray-500" data-i="nr_d"></p>
+ <button class="btn-p w-full" onclick="noRoomCreate()" data-i="nr_go"></button>
+ <button class="btn-g w-full" onclick="closeModal('m-noroom')" data-i="cancel"></button>
+</div></div>
+
 <div id="m-post" class="modal hidden"><div class="mbox">
  <h3 class="text-lg font-bold" data-i="po_t"></h3>
  <select id="po-mode" class="inp"><option value="strict" data-i="m_strict"></option><option value="social" data-i="m_social"></option></select>
@@ -254,7 +261,7 @@ cam_denied:'Camera permission was blocked. Allow the camera in your browser sett
 tour_skip:'Skip',tour_back:'Back',tour_next:'Next',tour_done:'Got it',tour_step:'Step {a} of {b}',
 t1:'Welcome to NTHU StudyBuddy 👋|Study next to a real person and keep each other focused. This 30-second tour shows how it works.',
 t2:'Who is studying now|This live counter shows how many students are studying and how many are online right now.',
-t3:'Quick Match ⚡|The fastest way to start. Pick a mode and a library. If someone is already waiting you are matched with them, otherwise a room is opened for you and the next person joins you.',
+t3:'Quick Match ⚡|The fastest way to start. Pick a mode and a library and the app puts you in a matching room from the Study Lobby. If there is none, it offers to create one for you.',
 t4:'Study Lobby|Open rooms from other students are listed here. You can also create your own.',
 t5:'Post your own room|Choose a mode, a library and a topic. You get a 6-digit code and a QR code to show your buddy.',
 t6:'Filters|Narrow the list by mode, gender preference and library.',
@@ -265,6 +272,7 @@ t10:'Sign in or stay a guest|You can use everything as a guest. Sign in with you
 t11:'Language and theme|Switch between English and 繁體中文 here. The button next to it switches dark and light mode.',
 t12:'You are ready! 🎉|During a session you can use two bathroom passes. When you finish, rate your buddy. Tap ❓ at the top to see this tour again.',
 quick_wait:'Nobody is waiting yet, so we opened a room for you. Stay here: the next Quick Match in your library will join you.',quick_topic:'Quick Match',hello:'Hi! I’d like to study with you. Where are you sitting?',
+nr_t:'No matching room yet',nr_d:'Nobody has posted a room that fits your choices. Create one in the Study Lobby and the next matching student will join you.',nr_go:'Create a room in Study Lobby',
 ph_focus:'⚡ Focus time',ph_break:'☕ Break time',ph_pass:'🚻 Bathroom pass',round:'Round',pass_left:'Passes left: {n}',b_pass:'🚻 Bathroom pass (10 min)',b_back:'I’m back',
 pass_on:'Timer paused. Your buddy sees you’re on a 10 min break.',b_end:'🛑 End session',demo:'Demo speed ×60',
 chat_t:'💬 Break chat',chat_ph:'Type a message…',send:'Send',chat_off:'Quiet break 💧 Stretch, drink water, rest your eyes.',
@@ -300,7 +308,7 @@ cam_denied:'相機權限被封鎖。請在瀏覽器設定中允許使用相機�
 tour_skip:'略過',tour_back:'上一步',tour_next:'下一步',tour_done:'知道了',tour_step:'第 {a} 步，共 {b} 步',
 t1:'歡迎使用 NTHU StudyBuddy 👋|和真人坐在一起，互相督促專注。這個 30 秒導覽會帶你了解使用方式。',
 t2:'誰正在讀書|這個即時計數會顯示目前有多少同學正在讀書，以及有多少人在線上。',
-t3:'快速配對 ⚡|最快的開始方式。選擇模式和圖書館：若已有人在等待就會配對給你；沒有的話，系統會為你開一個房間，等下一位同學加入。',
+t3:'快速配對 ⚡|最快的開始方式。選擇模式和圖書館，系統會把你放進讀書大廳中符合條件的房間；如果沒有，會引導你自己發起一個。',
 t4:'讀書大廳|其他同學開放的房間都列在這裡，你也可以自己發起。',
 t5:'發起你的房間|選擇模式、圖書館和主題，你會得到一組 6 位數代碼和 QR Code，讓夥伴確認。',
 t6:'篩選條件|可依模式、性別偏好和圖書館縮小範圍。',
@@ -311,6 +319,7 @@ t10:'登入或以訪客使用|訪客也能使用所有功能。使用 @gapp.nthu
 t11:'語言與主題|在這裡切換英文與繁體中文，旁邊的按鈕可切換深色與淺色模式。',
 t12:'準備好了！🎉|讀書時每人有兩次暫離機會。結束後請為夥伴評分。點上方的 ❓ 可再次查看導覽。',
 quick_wait:'目前沒有人在等待，所以我們為你開了一個房間。請留在這裡，下一位在同一圖書館快速配對的同學會加入你。',quick_topic:'快速配對',hello:'嗨！我想和你一起讀書，你坐在哪裡？',
+nr_t:'目前沒有符合的房間',nr_d:'還沒有人發起符合你條件的房間。到讀書大廳自己發起一個，下一位符合條件的同學就會加入你。',nr_go:'到讀書大廳發起房間',
 ph_focus:'⚡ 專注時間',ph_break:'☕ 休息時間',ph_pass:'🚻 暫離洗手間',round:'第',pass_left:'剩餘暫離次數：{n}',b_pass:'🚻 暫離洗手間 (10 分鐘)',b_back:'我回來了',
 pass_on:'計時已暫停，夥伴會看到你正在休息 10 分鐘。',b_end:'🛑 結束讀書',demo:'展示加速 ×60',
 chat_t:'💬 休息聊天室',chat_ph:'輸入訊息…',send:'送出',chat_off:'安靜休息 💧 伸展一下、喝點水、讓眼睛休息。',
@@ -480,14 +489,19 @@ function watchRoom(key){
 
 /* ---------- MATCH + QR CHECK-IN ---------- */
 function openSetup(){if(!inSes())openModal('m-setup')}
-/* Quick Match: join someone who is already waiting, otherwise become the one who waits */
+/* Quick Match: only joins an existing room. Rooms are created on purpose in the Study Lobby. */
+let qm={m:'strict',l:'main'};
 function findMatch(){
  const m=$('su-mode').value,g=$('su-gender').value,l=$('su-loc').value,me=AV[S.av].g;
  const pool=lobby.filter(x=>!x.me&&x.m==m&&x.l==l&&(g=='all'||(g=='same')==(AV[x.a].g==me)))
-  .sort((a,b)=>(b.quick?1:0)-(a.quick?1:0)||(a.ts||0)-(b.ts||0));
+  .sort((a,b)=>(a.ts||0)-(b.ts||0));
  closeModal('m-setup');
- if(pool.length)openQR(pool[0],m,'guest');
- else createRoom(m,l,t('quick_topic'),true);
+ if(pool.length)return openQR(pool[0],m,'guest');
+ qm={m,l};openModal('m-noroom');
+}
+function noRoomCreate(){
+ closeModal('m-noroom');show('lobby');
+ $('po-mode').value=qm.m;$('po-loc').value=qm.l;$('po-topic').value='';openModal('m-post');
 }
 function join(k){if(inSes())return;const b=lobby.find(x=>x.fbKey==k);if(b)openQR(b,b.m,b.me?'host':'guest')}
 function openQR(b,mode,role){
