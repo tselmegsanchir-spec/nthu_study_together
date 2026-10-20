@@ -157,6 +157,7 @@ body{font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC","PingFang TC"
  <h3 class="text-lg font-bold" data-i="su_t"></h3>
  <select id="su-mode" class="inp"><option value="strict" data-i="m_strict"></option><option value="social" data-i="m_social"></option></select>
  <select id="su-gender" class="inp"><option value="all" data-i="f_gall"></option><option value="same" data-i="f_gsame"></option><option value="opp" data-i="f_gopp"></option></select>
+ <select id="su-loc" class="inp"><option value="main" data-i="loc_main"></option><option value="nanda" data-i="loc_nanda"></option></select>
  <button class="btn-p w-full" onclick="findMatch()" data-i="su_find"></button>
  <button class="btn-g w-full" onclick="closeModal('m-setup')" data-i="cancel"></button>
 </div></div>
@@ -253,7 +254,7 @@ cam_denied:'Camera permission was blocked. Allow the camera in your browser sett
 tour_skip:'Skip',tour_back:'Back',tour_next:'Next',tour_done:'Got it',tour_step:'Step {a} of {b}',
 t1:'Welcome to NTHU StudyBuddy 👋|Study next to a real person and keep each other focused. This 30-second tour shows how it works.',
 t2:'Who is studying now|This live counter shows how many students are studying and how many are online right now.',
-t3:'Quick Match ⚡|The fastest way to start. Pick a mode and the app finds an open room for you.',
+t3:'Quick Match ⚡|The fastest way to start. Pick a mode and a library. If someone is already waiting you are matched with them, otherwise a room is opened for you and the next person joins you.',
 t4:'Study Lobby|Open rooms from other students are listed here. You can also create your own.',
 t5:'Post your own room|Choose a mode, a library and a topic. You get a 6-digit code and a QR code to show your buddy.',
 t6:'Filters|Narrow the list by mode, gender preference and library.',
@@ -263,6 +264,7 @@ t9:'Your profile|Choose an avatar, see your titles and badges, and track your st
 t10:'Sign in or stay a guest|You can use everything as a guest. Sign in with your @gapp.nthu.edu.tw Google account to keep your rating on every device.',
 t11:'Language and theme|Switch between English and 繁體中文 here. The button next to it switches dark and light mode.',
 t12:'You are ready! 🎉|During a session you can use two bathroom passes. When you finish, rate your buddy. Tap ❓ at the top to see this tour again.',
+quick_wait:'Nobody is waiting yet, so we opened a room for you. Stay here: the next Quick Match in your library will join you.',quick_topic:'Quick Match',hello:'Hi! I’d like to study with you. Where are you sitting?',
 ph_focus:'⚡ Focus time',ph_break:'☕ Break time',ph_pass:'🚻 Bathroom pass',round:'Round',pass_left:'Passes left: {n}',b_pass:'🚻 Bathroom pass (10 min)',b_back:'I’m back',
 pass_on:'Timer paused. Your buddy sees you’re on a 10 min break.',b_end:'🛑 End session',demo:'Demo speed ×60',
 chat_t:'💬 Break chat',chat_ph:'Type a message…',send:'Send',chat_off:'Quiet break 💧 Stretch, drink water, rest your eyes.',
@@ -298,7 +300,7 @@ cam_denied:'相機權限被封鎖。請在瀏覽器設定中允許使用相機�
 tour_skip:'略過',tour_back:'上一步',tour_next:'下一步',tour_done:'知道了',tour_step:'第 {a} 步，共 {b} 步',
 t1:'歡迎使用 NTHU StudyBuddy 👋|和真人坐在一起，互相督促專注。這個 30 秒導覽會帶你了解使用方式。',
 t2:'誰正在讀書|這個即時計數會顯示目前有多少同學正在讀書，以及有多少人在線上。',
-t3:'快速配對 ⚡|最快的開始方式。選擇模式，系統會幫你找一個開放的房間。',
+t3:'快速配對 ⚡|最快的開始方式。選擇模式和圖書館：若已有人在等待就會配對給你；沒有的話，系統會為你開一個房間，等下一位同學加入。',
 t4:'讀書大廳|其他同學開放的房間都列在這裡，你也可以自己發起。',
 t5:'發起你的房間|選擇模式、圖書館和主題，你會得到一組 6 位數代碼和 QR Code，讓夥伴確認。',
 t6:'篩選條件|可依模式、性別偏好和圖書館縮小範圍。',
@@ -308,6 +310,7 @@ t9:'你的個人檔案|選擇頭像、查看稱號與勳章，並追蹤連續天
 t10:'登入或以訪客使用|訪客也能使用所有功能。使用 @gapp.nthu.edu.tw 的 Google 帳號登入，可在不同裝置保留你的評價。',
 t11:'語言與主題|在這裡切換英文與繁體中文，旁邊的按鈕可切換深色與淺色模式。',
 t12:'準備好了！🎉|讀書時每人有兩次暫離機會。結束後請為夥伴評分。點上方的 ❓ 可再次查看導覽。',
+quick_wait:'目前沒有人在等待，所以我們為你開了一個房間。請留在這裡，下一位在同一圖書館快速配對的同學會加入你。',quick_topic:'快速配對',hello:'嗨！我想和你一起讀書，你坐在哪裡？',
 ph_focus:'⚡ 專注時間',ph_break:'☕ 休息時間',ph_pass:'🚻 暫離洗手間',round:'第',pass_left:'剩餘暫離次數：{n}',b_pass:'🚻 暫離洗手間 (10 分鐘)',b_back:'我回來了',
 pass_on:'計時已暫停，夥伴會看到你正在休息 10 分鐘。',b_end:'🛑 結束讀書',demo:'展示加速 ×60',
 chat_t:'💬 休息聊天室',chat_ph:'輸入訊息…',send:'送出',chat_off:'安靜休息 💧 伸展一下、喝點水、讓眼睛休息。',
@@ -348,7 +351,7 @@ if(db){
  db.ref('.info/serverTimeOffset').on('value',x=>offset=x.val()||0);
  db.ref('.info/connected').on('value',x=>{if(x.val()){const r=db.ref('presence/'+mySessionId);r.onDisconnect().remove();r.set(!!ses)}});
  db.ref('presence').on('value',x=>{online=x.numChildren();studying=0;x.forEach(c=>{if(c.val()===true)studying++});showLive()});
- db.ref('lobby').on('value',snap=>{lobby=[];snap.forEach(c=>{const d=c.val();lobby.push({fbKey:c.key,uid:d.uid,rid:d.rid,rs:d.rs,rn:d.rn,me:d.uid===mySessionId,code:d.code,n:d.n,d:d.d,m:d.m,l:d.l,a:d.a,topic:d.topic})});renderLobby()});
+ db.ref('lobby').on('value',snap=>{lobby=[];snap.forEach(c=>{const d=c.val();lobby.push({fbKey:c.key,uid:d.uid,rid:d.rid,ts:d.ts,quick:d.quick,rs:d.rs,rn:d.rn,me:d.uid===mySessionId,code:d.code,n:d.n,d:d.d,m:d.m,l:d.l,a:d.a,topic:d.topic})});renderLobby()});
 }
 const setStudying=v=>{if(db)db.ref('presence/'+mySessionId).set(v)};
 
@@ -422,7 +425,7 @@ function renderLobby(){
 const inSes=()=>{if(ses){toast(t('in_ses'));show('session');return true}return false};
 
 /* ---------- PRE-MEETING ROOM CHAT ---------- */
-const roomMsgs={},roomOn={};
+const roomMsgs={},roomOn={},hello={};
 function listenRoom(key){
  if(roomOn[key]||!db)return;
  const t0=Date.now();roomOn[key]=t0;roomMsgs[key]=[];
@@ -455,13 +458,18 @@ function closeQR(){
 
 /* ---------- POST ROOM ---------- */
 function submitPost(){
+ const topic=$('po-topic').value.trim()||'—';
+ $('po-topic').value='';closeModal('m-post');
+ createRoom($('po-mode').value,$('po-loc').value,topic,false);
+}
+function createRoom(mode,loc,topic,quick){
  if(!db)return toast('Firebase offline');
  if(inSes())return;
- const code=rnd6(),mode=$('po-mode').value,r=db.ref('lobby').push(),key=r.key;
+ const code=rnd6(),r=db.ref('lobby').push(),key=r.key;
  r.onDisconnect().remove();db.ref('roomchat/'+key).onDisconnect().remove();
  r.set({uid:mySessionId,rid:rid(),rs:agg&&agg.n?+(agg.sum/agg.n).toFixed(1):null,rn:agg&&agg.n?agg.n:null,
-  code,n:myName(),d:'Library',m:mode,l:$('po-loc').value,a:S.av,topic:$('po-topic').value.trim()||'—',ts:Date.now()});
- $('po-topic').value='';closeModal('m-post');toast(t('t_posted'));
+  code,n:myName(),d:'Library',m:mode,l:loc,a:S.av,topic,quick:!!quick,ts:Date.now()});
+ toast(t(quick?'quick_wait':'t_posted'));
  listenRoom(key);watchRoom(key);
  openQR({fbKey:key,code,m:mode,a:S.av,me:1},mode,'host');
 }
@@ -472,12 +480,14 @@ function watchRoom(key){
 
 /* ---------- MATCH + QR CHECK-IN ---------- */
 function openSetup(){if(!inSes())openModal('m-setup')}
+/* Quick Match: join someone who is already waiting, otherwise become the one who waits */
 function findMatch(){
- const m=$('su-mode').value,g=$('su-gender').value,me=AV[S.av].g;
- let pool=lobby.filter(x=>!x.me&&x.m==m&&(g=='all'||(g=='same')==(AV[x.a].g==me)));
- if(!pool.length)pool=lobby.filter(x=>!x.me);
- if(!pool.length)return toast(t('l_empty'));
- closeModal('m-setup');openQR(pool[Math.floor(Math.random()*pool.length)],m,'guest');
+ const m=$('su-mode').value,g=$('su-gender').value,l=$('su-loc').value,me=AV[S.av].g;
+ const pool=lobby.filter(x=>!x.me&&x.m==m&&x.l==l&&(g=='all'||(g=='same')==(AV[x.a].g==me)))
+  .sort((a,b)=>(b.quick?1:0)-(a.quick?1:0)||(a.ts||0)-(b.ts||0));
+ closeModal('m-setup');
+ if(pool.length)openQR(pool[0],m,'guest');
+ else createRoom(m,l,t('quick_topic'),true);
 }
 function join(k){if(inSes())return;const b=lobby.find(x=>x.fbKey==k);if(b)openQR(b,b.m,b.me?'host':'guest')}
 function openQR(b,mode,role){
@@ -487,6 +497,7 @@ function openQR(b,mode,role){
  if(host){$('qr-my').textContent=b.code;const q=$('qr-img');q.innerHTML='';try{new QRCode(q,{text:b.code,width:200,height:200,correctLevel:QRCode.CorrectLevel.M})}catch(e){}}
  $('qr-in').value='';openModal('m-qr');
  listenRoom(b.fbKey);paintRoom();
+ if(!host&&!hello[b.fbKey]){hello[b.fbKey]=1;roomSay(t('hello'))}
 }
 let scanner=null,lastScan=0;
 function startScanner(){
